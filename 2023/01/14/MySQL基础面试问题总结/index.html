@@ -24,7 +24,7 @@
 <meta property="og:description" content="本文主要总结了MySQL的常见基础问题的回答，涉及MySQL存储引擎、事务、锁、隔离级别等">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-01-14T11:47:34.000Z">
-<meta property="article:modified_time" content="2023-01-14T04:08:16.232Z">
+<meta property="article:modified_time" content="2023-01-14T07:59:05.683Z">
 <meta property="article:author" content="行舟">
 <meta property="article:tag" content="Mysql">
 <meta name="twitter:card" content="summary_large_image">
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.2k 字
+          4.1k 字
         
       </span>
     
@@ -386,8 +386,8 @@
 <h2 id="共享锁和排他锁呢？"><a href="#共享锁和排他锁呢？" class="headerlink" title="共享锁和排他锁呢？"></a>共享锁和排他锁呢？</h2><p>表级锁与行级锁均存在<strong>共享锁</strong>与<strong>排他锁</strong>。共享锁(读锁)允许多个事务同时获取，不互斥。排他锁(写锁)，不允许多个事务同时获取，互斥。共享锁仅与共享锁兼容，排他锁与任何锁都不兼容。</p>
 <h2 id="意向锁有什么作用？"><a href="#意向锁有什么作用？" class="headerlink" title="意向锁有什么作用？"></a>意向锁有什么作用？</h2><p>在需要添加表锁的时候，需要判断当前表中是否存在行锁。这时候就需要通过意向锁来快速判断是否可以对表添加表锁。</p>
 <p>意向锁是表级锁，共有两种：</p>
-<p><strong>意向共享锁（Intention Shared Lock****，IS</strong> <strong>锁）</strong>：事务有意向对表中某些记录添加共享锁时，需要先获取对应的意向共享锁。</p>
-<p><strong>意向排他锁（Intention Exclusive Lock****，IX</strong> <strong>锁）</strong>：事务有意向对表中某些记录添加排他锁时，需要先获取对应的意向排他锁。</p>
+<p><strong>意向共享锁（Intention Shared Lock，IS 锁）</strong>：事务有意向对表中某些记录添加共享锁时，需要先获取对应的意向共享锁。</p>
+<p><strong>意向排他锁（Intention Exclusive Lock，IX 锁）</strong>：事务有意向对表中某些记录添加排他锁时，需要先获取对应的意向排他锁。</p>
 <p>意向锁由数据库引擎自行维护，用户无法操作。在对行记录添加共享锁或者排他锁的时候，数据库引擎会先获取对应的意向锁。需要说明的是意向锁之间是兼容的，但是与表级的共享锁、排他锁互斥。</p>
 <h2 id="InnoDB-有哪几类行锁？"><a href="#InnoDB-有哪几类行锁？" class="headerlink" title="InnoDB 有哪几类行锁？"></a>InnoDB 有哪几类行锁？</h2><p>MySQL InnoDB 支持三种行锁定方式：</p>
 <ul>
@@ -538,7 +538,7 @@
       Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
       Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
         var options = Object.assign(
-          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
           {
             el: '#waline',
             path: window.location.pathname
@@ -652,7 +652,7 @@
     <div class="footer-inner">
   
     <div class="footer-content">
-      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟,贵在坚持</span></a>
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
     </div>
   
   
