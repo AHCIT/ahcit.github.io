@@ -23,11 +23,19 @@
 <meta property="og:site_name" content="行舟">
 <meta property="og:description" content="本文主要总结了MySQL的常见基础问题的回答，涉及MySQL存储引擎、事务、锁、隔离级别等">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/data_page_description.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/index_pages.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/record_store_struct.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/record_list.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/infimum_supermum.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/compact_infimum_supermum.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/page_directory.png">
 <meta property="article:published_time" content="2023-01-14T11:47:34.000Z">
-<meta property="article:modified_time" content="2023-01-15T15:23:36.905Z">
+<meta property="article:modified_time" content="2023-01-16T16:54:04.785Z">
 <meta property="article:author" content="行舟">
 <meta property="article:tag" content="Mysql">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ahcit.github.io/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/data_page_description.png">
   
   
   
@@ -237,7 +245,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          8k 字
         
       </span>
     
@@ -248,7 +256,7 @@
         
         
         
-          24 分钟
+          67 分钟
         
       </span>
     
@@ -371,8 +379,337 @@
 </li>
 </ul>
 <p><strong>索引条件下推可以减少存储引擎查询基础表的次数，也可以减少MySQL服务其从存储引擎接收数据的次数。</strong></p>
+<h2 id="索引更新过程中的页分裂过程"><a href="#索引更新过程中的页分裂过程" class="headerlink" title="索引更新过程中的页分裂过程"></a>索引更新过程中的页分裂过程</h2><p>在介绍聚簇索引时提到，当插入行的主键值要求必须将这一行插入到某个已满的页中时，存储引擎会将该页分裂成两个页面来容纳该行。那么页分裂的过程到底是怎样的呢？首先需要阐明的一点是，InnoDB从磁盘中读取数据的最小单位时数据页，我们需要的数据记录就包含在数据页当中。</p>
+<h3 id="数据页的逻辑结构"><a href="#数据页的逻辑结构" class="headerlink" title="数据页的逻辑结构"></a>数据页的逻辑结构</h3><p>关于数据页的逻辑结构可以通过下图来进行描述</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/data_page_description.png" srcset="/img/loading.gif" lazyload class="" title="数据页逻辑结构图">
+
+<p>从图中可以看到一个数据页由七个部分组成，每个部分的意义见下表。</p>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>大小</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>File Header</td>
+<td>38字节</td>
+<td>所有页的通用文件头信息</td>
+</tr>
+<tr>
+<td>Page Header</td>
+<td>56字节</td>
+<td>索引页特有的页头信息</td>
+</tr>
+<tr>
+<td>Infimum(下界)+Supremum(上界)</td>
+<td>26字节</td>
+<td>页中虚拟的最小、最大记录，上界大于当前存在的最大主键值，下界小于当前最小主键值</td>
+</tr>
+<tr>
+<td>User Records</td>
+<td>变长</td>
+<td>用户记录数据</td>
+</tr>
+<tr>
+<td>Free Space</td>
+<td>变长</td>
+<td>空闲空间</td>
+</tr>
+<tr>
+<td>Page Directory</td>
+<td>变长</td>
+<td>页目录，加速页内数据检索效率</td>
+</tr>
+<tr>
+<td>File Trailer</td>
+<td>8字节</td>
+<td>所有页的通用文件尾信息，校验页是否完整</td>
+</tr>
+</tbody></table>
+<h3 id="File-Header"><a href="#File-Header" class="headerlink" title="File Header"></a>File Header</h3><p>File Header是所有页都有的一个通用的结构，占用固定的38字节，它记录了页的一些通用的状态信息，例如：页的页号、Checksum、把页串联成双向链表的指针、页的类型等等。</p>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>大小</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FIL_PAGE_SPACE_OR_CHECKSUM</td>
+<td>4字节</td>
+<td>新版本中代表页的校验和Checksum</td>
+</tr>
+<tr>
+<td>FIL_PAGE_OFFSET</td>
+<td>4字节</td>
+<td>页号</td>
+</tr>
+<tr>
+<td>FIL_PAGE_PREV</td>
+<td>4字节</td>
+<td>上一个页的页号</td>
+</tr>
+<tr>
+<td>FIL_PAGE_NEXT</td>
+<td>4字节</td>
+<td>下一个页的页号</td>
+</tr>
+<tr>
+<td>FIL_PAGE_LSN</td>
+<td>8字节</td>
+<td>页面最后被修改时的LSN值</td>
+</tr>
+<tr>
+<td>FIL_PAGE_TYPE</td>
+<td>2字节</td>
+<td>页的类型</td>
+</tr>
+<tr>
+<td>FIL_PAGE_FILE_FLUSH_LSN</td>
+<td>8字节</td>
+<td>仅在系统表空间的第1个页中使用，代表文件至少被刷新到了对应的LSN值</td>
+</tr>
+<tr>
+<td>FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID</td>
+<td>4字节</td>
+<td>页数据哪个表空间</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>FIL_PAGE_SPACE_OR_CHECKSUM</strong></li>
+</ul>
+<p>基于当前页计算出的校验和(Checksum)，可以把它看作是哈希值，校验和不同，则两个页数据肯定不同。它的作用是InnoDB在脏页刷盘时，有可能会遇到页刷到一半断电的情况，页的头和尾部分分别记录校验和，只有当头尾的校验和一致的时候，才代表磁盘上的页是完整的，否则就是一个损坏的页。</p>
+<ul>
+<li><strong>FIL_PAGE_OFFSET</strong></li>
+</ul>
+<p>页号，页的唯一标识，全局递增的数字，InnoDB通过页号来定位唯一的一个页。4字节存储，意味着一个表空间最多可以有232个页，按照一个页16KB计算，则一个表空间最多支持64TB的数据。</p>
+<ul>
+<li><strong>FIL_PAGE_PREV &amp; FIL_PAGE_NEXT</strong></li>
+</ul>
+<p>一个页大小才16KB，一张表数据其实是由N多个页构成的，页与页之间在物理上可以是不连续的，但是逻辑上要连续，FIL_PAGE_PREV和FIL_PAGE_NEXT分别指向当前页的上一个页和下一个页的页号，通过这两个指针将索引页串联成了一个双向链表。记录与记录之间是单向的，页与页之间是双向的！</p>
+<ul>
+<li><strong>FIL_PAGE_LSN</strong></li>
+</ul>
+<p>页面最后被修改时，对应的LSN值。LSN的全称是Log Sequence Number，日志序列号。它是一个递增的数字，和事务相关，这里不作赘述。</p>
+<ul>
+<li><strong>FIL_PAGE_TYPE</strong></li>
+</ul>
+<p>当前页的类型，InnoDB为了不同的目的设计了很多不同类型的页，索引页的固定值是<code>0x45BF</code>。</p>
+<ul>
+<li><strong>FIL_PAGE_FILE_FLUSH_LSN</strong></li>
+</ul>
+<p>仅在第1个页中使用，用来判断数据库是正常关闭还是异常宕机。</p>
+<ul>
+<li><strong>FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID</strong></li>
+</ul>
+<p>仅记录当前页数据哪个表空间。</p>
+<h3 id="Page-Header"><a href="#Page-Header" class="headerlink" title="Page Header"></a>Page Header</h3><p>Page Header是索引页特有的结构，占用固定的56字节，它记录了索引页中记录相关的状态信息。</p>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>大小</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PAGE_N_DlR_SLOTS</td>
+<td>2字节</td>
+<td>页目录中的槽数量</td>
+</tr>
+<tr>
+<td>PAGE_HEAP_TOP</td>
+<td>2字节</td>
+<td>未使用的空间最小地址，User Records和Free Space分界点</td>
+</tr>
+<tr>
+<td>PAGE_N_HEAP</td>
+<td>2字节</td>
+<td>本页中的记录的数量(包括虚拟记录和删除记录)</td>
+</tr>
+<tr>
+<td>PAGE_FREE</td>
+<td>2字节</td>
+<td>第一个删除的记录地址，后续删除的记录会形成链表。</td>
+</tr>
+<tr>
+<td>PAGE_GARBAGE</td>
+<td>2字节</td>
+<td>已删除记录占用的字节数</td>
+</tr>
+<tr>
+<td>PAGE_LAST_INSERT</td>
+<td>2字节</td>
+<td>最后插入记录的位置</td>
+</tr>
+<tr>
+<td>PAGE_DIRECTION</td>
+<td>2字节</td>
+<td>记录插入的方向</td>
+</tr>
+<tr>
+<td>PAGE_N_DIRECTION</td>
+<td>2字节</td>
+<td>同一个方向连续插入的记录数量</td>
+</tr>
+<tr>
+<td>PAGE_N_RECS</td>
+<td>2字节</td>
+<td>该页中记录的数量(不包括虚拟记录和删除记录)</td>
+</tr>
+<tr>
+<td>PAGE_MAX_TRX_ID</td>
+<td>8字节</td>
+<td>修改当前页的最大事务ID，仅在二级索引中使用</td>
+</tr>
+<tr>
+<td>PAGE_LEVEL</td>
+<td>2字节</td>
+<td>当前页在B+树中所处的层级</td>
+</tr>
+<tr>
+<td>PAGE_INDEX_ID</td>
+<td>8字节</td>
+<td>索引ID，表示当前页属于哪个索引</td>
+</tr>
+<tr>
+<td>PAGE_BTR_SEG_LEAF</td>
+<td>10字节</td>
+<td>B+树叶子段的头部信息，仅在B+树的Root页定义</td>
+</tr>
+<tr>
+<td>PAGE_BTR_SEG_TOP</td>
+<td>10字节</td>
+<td>B+树非叶子段的头部信息，仅在B+树的Root页定义</td>
+</tr>
+</tbody></table>
+<p>不用每个属性都了解，我们挑几个比较重要的看看。</p>
+<ul>
+<li><strong>PAGE_N_DlR_SLOTS</strong></li>
+</ul>
+<p>一个页内可能有上千条记录，挨个遍历的话效率太慢了。为了提高页内记录的检索效率，InnoDB将页内的记录划分为多个组，组里最大的那条记录相较于页的地址偏移量会记录到「Page Directory」部分，每个组都对应一个槽，槽的大小是固定的2字节。该属性记录的就是页内槽的数量。</p>
+<ul>
+<li><strong>PAGE_HEAP_TOP</strong></li>
+</ul>
+<p>Free Space的起始位置，它是User Records和Free Space分界点。一个全新的页一开始是没有User Records部分的，每插入一条记录，都要向Free Space申请空间，Free Space耗尽就代表页满了。</p>
+<ul>
+<li><strong>PAGE_FREE</strong></li>
+</ul>
+<p>DELETE命令删除记录时，InnoDB并不会真的将记录从磁盘中删除，而是在记录的头信息里打个标记，然后将其加入到「垃圾链表」中。PAGE_FREE指向的就是垃圾链表的表头记录。后面删除的记录，也会自动加入到链表里。</p>
+<ul>
+<li><strong>PAGE_DIRECTION &amp; PAGE_N_DIRECTION</strong></li>
+</ul>
+<p>PAGE_DIRECTION表示最后一条记录插入的方向，比上一条记录值大则记为右边，反之则是左边。PAGE_N_DIRECTION表示同一方向连续插入的记录数，方向变了该值就会重置。</p>
+<ul>
+<li><strong>PAGE_LEVEL</strong></li>
+</ul>
+<p>InnoDB组织数据的形式就是B+树，树中的节点就是索引页，PAGE_LEVEL代表当前页在B+树中所处的层级。InnoDB规定，叶子节点层级为0，然后向上递增。</p>
+<h3 id="User-Records"><a href="#User-Records" class="headerlink" title="User Records"></a>User Records</h3><blockquote>
+<p>Infimum和Supremum也属于记录，只是为了与用户记录区分开才划分成了两部分，我们先看User Records。</p>
+</blockquote>
+<p>用户记录存放在User Records部分，一个全新的页一开始全是Free Space，是没有User Records部分的。每插入一条记录都需要到Free Space申请一块空间，并将其划分到User Records用来存放用户记录。当Free Space耗尽也就代表当前页已经用完了，再有新记录需要插入，就需要申请一个新的页了。</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/index_pages.png" srcset="/img/loading.gif" lazyload class="" title="索引页列表">
+
+<p>还记得MySQL的行格式吗？它决定了记录在磁盘里的存储格式。以COMPACT为例，存储格式如下图：</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/record_store_struct.png" srcset="/img/loading.gif" lazyload class="" title="行记录存储结构">
+
+<p>记录头信息里的字段比较关键，以防大家忘记，我这里再贴一下：</p>
+<table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>大小(Bit)</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>预留位1</td>
+<td>1</td>
+<td>没有使用</td>
+</tr>
+<tr>
+<td>预留位2</td>
+<td>1</td>
+<td>没有使用</td>
+</tr>
+<tr>
+<td>deleted_flag</td>
+<td>1</td>
+<td>记录删除标记</td>
+</tr>
+<tr>
+<td>min_rec_flag</td>
+<td>1</td>
+<td>B+树非叶子节点的最小目录项标记</td>
+</tr>
+<tr>
+<td>n_owned</td>
+<td>4</td>
+<td>同一页内同一组里最大的记录会记录组里的记录数量，其余记录该值为0</td>
+</tr>
+<tr>
+<td>heap_no</td>
+<td>13</td>
+<td>当前记录在页面堆里的相对位置</td>
+</tr>
+<tr>
+<td>record_type</td>
+<td>3</td>
+<td>记录类型。0:普通记录,1:B+树非叶子节点目录项记录,2:Infimum记录,3:Supremum记录.</td>
+</tr>
+<tr>
+<td>next_record</td>
+<td>16</td>
+<td>下一条记录的相对位置</td>
+</tr>
+</tbody></table>
+<p>记录头信息的最后2字节用来连接下一条记录，将页内所有记录串联成一个单向链表。所以我们隐藏变长字段长度列表和NULL值列表，记录的格式应该是这样的：</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/record_list.png" srcset="/img/loading.gif" lazyload class="" title="行记录列表">
+
+<p><strong>记录是怎么排序的？</strong> 我们已经知道，页内的记录会自动串联成一个单向链表。那这个链表的编排顺序是什么呢？是按照记录的插入时间排序的吗？其实不是的，如果表有主键，会根据主键排序；没主键有唯一非空索引，会根据该索引排序；两者都没有，InnoDB会自动生成一个<code>row_id</code>列并根据该列进行排序。</p>
+<h3 id="Infimum-amp-Supremum"><a href="#Infimum-amp-Supremum" class="headerlink" title="Infimum &amp; Supremum"></a>Infimum &amp; Supremum</h3><p>Infimum和Supremum是索引页内的两条虚拟记录，InnoDB规定所有索引页都会有这两条记录，而且所有的用户记录都比Infimum大，都比Supremum小。 记录头信息里的heap_no代表记录在堆里的相对位置，该值越小代表记录越靠前。细心的同学会发现，上图中的用户记录heap_no值是从2开始的，那0和1呢？不说你也肯定猜到了，就是被Infimum和Supremum占用了。Infimum和Supremum的heap_no值分别是0和1，它俩在所有用户记录的最前面。</p>
+<p>Infimum和Supremum结构非常的简单，和用户记录一样也有头信息，真实数据部分是固定的字符串，如下图所示：</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/infimum_supermum.png" srcset="/img/loading.gif" lazyload class="" title="上下界位置">
+
+<p>我们把这两条虚拟记录也加入到记录里面，完整的结构就是下面这样的：</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/compact_infimum_supermum.png" srcset="/img/loading.gif" lazyload class="" title="带上下界行记录结构">
+
+<p>Supremum记录的next_record属性为0，代表它已经没有下一条记录了。</p>
+<h3 id="Page-Directory"><a href="#Page-Directory" class="headerlink" title="Page Directory"></a>Page Directory</h3><p>Page Directory也叫作「页目录」，它的目的是提高页内记录的检索效率。相较于一张表几千万的记录来说，一个页内几百上千条记录已经是很少很少了。可即便如此，它也有几百上千条啊，如果页内检索记录只能挨个遍历的话，那也太低效了。别忘了，页内的记录是根据索引值排好序的，我们可以巧用「二分法」来快速查找。</p>
+<p>具体做法是：将页内所有非删除的记录划分为N个组，每个组里最后一条记录(即主键最大的记录)称作“大哥”，其余记录是“小弟”，“大哥”的<code>n_owned</code>属性记录了组内的记录数量。将“大哥”在页内的地址偏移量提取出来，按顺序依次从File Trailer部分往前写，每个地址偏移量占用2字节，称作一个「槽」，Page Directory就是由这些槽构成的。 InnoDB对于分组内的记录数量有一些规定：</p>
+<ul>
+<li>Infimum记录所在分组，只能有一条记录。</li>
+<li>Supremum记录所在分组，允许有1~8条记录。</li>
+<li>其余分组，允许有4~8条记录。</li>
+</ul>
+<p>由此可见，一个组里最多有8条记录，只要通过二分法快速定位到组，InnoDB也只需要遍历这8条记录，相较于遍历页内所有记录，效率要高的多。</p>
+<img src="/2023/01/14/MySQL%E7%B4%A2%E5%BC%95%E8%AF%A6%E8%A7%A3/page_directory.png" srcset="/img/loading.gif" lazyload class="" title="页目录内的记录定位">
+
+<h3 id="File-Trailer"><a href="#File-Trailer" class="headerlink" title="File Trailer"></a>File Trailer</h3><p>File Trailer是所有页都有的通用结构，占用固定的8字节，它的主要作用就是为了校验页的完整性。磁盘的速度实在是太慢了，InnoDB不会每次写点数据都直接刷新到磁盘上，那样MySQL会慢死。而是将页作为刷盘的基本单位，数据修改时，先改内存里的页，稍后再将整个页的数据一次性刷新到磁盘里。但是这会带来一个问题，一个页16KB，刷到第10KB的时候磁盘断电了怎么办？重启后InnoDB如何判断磁盘里的页数据是完整的？</p>
+<p>InnoDB是这么处理的，刷盘前根据页数据计算出一个Checksum，在页头和页尾都写一份。页刷盘的时候，先刷页头再刷页尾，当头尾两个Checksum值一致的时候，代表磁盘里的页是完整的，否则就表示页头刷了页尾没刷，那肯定是刷到一半出错了。</p>
+<table>
+<thead>
+<tr>
+<th><strong>大小</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4字节</td>
+<td>页的校验和Checksum</td>
+</tr>
+<tr>
+<td>4字节</td>
+<td>页最后被修改时对应的LSN的后4个字节，正常情况下应该与File Header里的FIL_PAGE_LSN的后4个字节相同。</td>
+</tr>
+</tbody></table>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>页是InnoDB存取数据的基本单位，默认页大小是16KB，InnoDB为了不同的目的设计了很多不同类型的页，本文重点分析了存放用户记录的索引页。页的头尾部分File Header和File Trailer是所有页都有的一个通用结构，它们记录了页的一些通用状态信息，和Checksum用来验证页的完整性。Page Header是索引页特有的结构，它记录了页内用户记录相关的状态信息。User Records部分用来存放用户记录。另外，由于页内的记录数量也不少，为了提高页内记录的检索效率，InnoDB在索引页中加入了Page Directory，它通过将记录分组，将组里最大的记录的地址偏移量形成一个个槽，Page Directory就是由这些槽构成的。检索数据时，使用二分法快速定位到槽所在的组，就可以避免遍历所有组的记录了。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li>MySQL索引详解：<a target="_blank" rel="noopener" href="https://javaguide.cn/database/mysql/mysql-index.html">https://javaguide.cn/database/mysql/mysql-index.html</a></li>
+<li>MySQL索引页结构：<a target="_blank" rel="noopener" href="https://juejin.cn/post/7068917155604987941">https://juejin.cn/post/7068917155604987941</a></li>
 </ul>
 
                 
