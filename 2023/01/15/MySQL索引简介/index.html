@@ -24,7 +24,7 @@
 <meta property="og:description" content="本文主要总结了MySQL索引基础知识">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-01-15T11:47:34.000Z">
-<meta property="article:modified_time" content="2023-01-18T14:25:06.929Z">
+<meta property="article:modified_time" content="2023-01-18T14:28:12.388Z">
 <meta property="article:author" content="行舟">
 <meta property="article:tag" content="Mysql">
 <meta name="twitter:card" content="summary_large_image">
@@ -357,7 +357,7 @@
 <p><strong>缺点：</strong></p>
 <ul>
 <li>依赖于有序的数据</li>
-<li>可能会二次查询（回表）。当查到索引对应的指针或主键后，可能还需要更具指针或者主键再到数据文件或者表中查询。<strong>这里的”可能”体现在，当索引字段就是需要返回的字段的时候是不用回表的，此时又可以称之为覆盖索引。</strong></li>
+<li>可能会二次查询（回表）。当查到索引对应的指针或主键后，可能还需要根据指针或者主键再到数据文件或者表中查询。<strong>这里的”可能”体现在，当索引字段就是需要返回的字段的时候是不用回表的，此时又可以称之为覆盖索引。</strong></li>
 </ul>
 <h2 id="覆盖索引与联合索引"><a href="#覆盖索引与联合索引" class="headerlink" title="覆盖索引与联合索引"></a>覆盖索引与联合索引</h2><h3 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a><strong>覆盖索引</strong></h3><p>如果一个索引包含（覆盖）了所有需要查询的字段的值，则将其称之为覆盖索引。覆盖索引的好处是可以减少一次回表操作，因为索引key已经涵盖了要查询的数据。</p>
 <h3 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h3><p>使用表中的多个字段创建索引，就是联合索引，也叫组合索引或者复合索引。</p>
