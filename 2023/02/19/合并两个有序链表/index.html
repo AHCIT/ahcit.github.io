@@ -16,22 +16,22 @@
   <meta name="author" content="行舟">
   <meta name="keywords" content="">
   
-    <meta name="description" content="本文主要总结了MySQL索引基础知识">
+    <meta name="description" content="LeetCode 21. 合并两个有序链表 将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。 1234567891011121314151617181920212223242526272829303132333435363738&#x2F;** * Definition for singly-linked list. * public class ListNo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL索引总结">
-<meta property="og:url" content="https://ahcit.github.io/2023/01/15/MySQL%E7%B4%A2%E5%BC%95%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:title" content="合并两个有序链表">
+<meta property="og:url" content="https://ahcit.github.io/2023/02/19/%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/index.html">
 <meta property="og:site_name" content="行舟">
-<meta property="og:description" content="本文主要总结了MySQL索引基础知识">
+<meta property="og:description" content="LeetCode 21. 合并两个有序链表 将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。 1234567891011121314151617181920212223242526272829303132333435363738&#x2F;** * Definition for singly-linked list. * public class ListNo">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-01-15T11:47:34.000Z">
-<meta property="article:modified_time" content="2023-01-18T14:28:12.000Z">
+<meta property="article:published_time" content="2023-02-19T14:53:49.000Z">
+<meta property="article:modified_time" content="2023-02-19T07:15:44.695Z">
 <meta property="article:author" content="行舟">
-<meta property="article:tag" content="Mysql">
+<meta property="article:tag" content="链表">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>MySQL索引总结 - 行舟</title>
+  <title>合并两个有序链表 - 行舟</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="MySQL索引总结"></span>
+            <span id="subtitle" data-typed-text="合并两个有序链表"></span>
           
         </div>
 
@@ -225,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-01-15 11:47" pubdate>
-          2023年1月15日 中午
+        <time datetime="2023-02-19 14:53" pubdate>
+          2023年2月19日 下午
         </time>
       </span>
     
@@ -237,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.9k 字
+          847 字
         
       </span>
     
@@ -248,7 +248,7 @@
         
         
         
-          24 分钟
+          8 分钟
         
       </span>
     
@@ -294,87 +294,14 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">MySQL索引总结</h1>
+            <h1 style="display: none">合并两个有序链表</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="MySQL索引总结"><a href="#MySQL索引总结" class="headerlink" title="MySQL索引总结"></a>MySQL索引总结</h1><h2 id="索引介绍"><a href="#索引介绍" class="headerlink" title="索引介绍"></a>索引介绍</h2><ul>
-<li>定义：一种用于快速查询和检索数据的数据结构，可以看成一种排序好的数据结构。</li>
-<li>底层数据结构：常见的有B树、B+树和Hash、红黑树。在MySQL中，MyISAM和InnoDB都使用了B+树作为底层的数据结构。</li>
-</ul>
-<h2 id="索引的优缺点："><a href="#索引的优缺点：" class="headerlink" title="索引的优缺点："></a>索引的优缺点：</h2><p>一般情况下，基于索引的查询比全表扫描要快，但是在数据量不大的时候，这种速度上的优势并不明显。</p>
-<p><strong>优点:</strong></p>
-<ul>
-<li>使用索引可以加快查询速度。</li>
-<li>唯一索引可以保证行记录的唯一性 。</li>
-</ul>
-<p><strong>缺点：</strong></p>
-<ul>
-<li>创建以及维护索引需要耗费很多时间。在对数据进行增删改的过程中如果关联到了索引列，则对应的索引也要进行对应的修改，此时会影响索引的执行效率。</li>
-<li>索引文件需要使用物理文件存储，会耗费一定的空间。</li>
-</ul>
-<h2 id="索引的底层数据结构"><a href="#索引的底层数据结构" class="headerlink" title="索引的底层数据结构"></a>索引的底层数据结构</h2><h3 id="Hash表"><a href="#Hash表" class="headerlink" title="Hash表"></a>Hash表</h3><p>哈希表是键值对的集合，通过键(key)即可快速取出对应的值(value)，因此哈希表可以快速检索数据。在处理hash冲突问题时，通常用的是链地址法。</p>
-<h3 id="B树与B-树"><a href="#B树与B-树" class="headerlink" title="B树与B+树"></a>B树与B+树</h3><p>B树又称B-树，全称为多路平衡查找树，而B+树是B树的一种变体，两者的区别在于以下三点：</p>
-<ul>
-<li><p>B树的所有节点既存放key也存放data。但B+树只有叶子节点存放key和data，其他内节点只存放key，<strong>因为这样一个节点就可以存储更多的key，可以使得B+树相对B树来说更矮（IO次数就是树的高度），所以与磁盘交换的IO操作次数更少。</strong></p>
-</li>
-<li><p>B树的叶子节点都是独立的，但B+树叶子节点有一条引用链是指向相邻的叶子节点，便于进行范围查询。</p>
-</li>
-<li><p>B树在检索的过程中相当于对范围内每个节点关键字做二分查找，存在未到达叶子节点就已经结束查询的情况。相对的，B+树的查询效率则更加稳定，原因在于任何查询都是从根节点开始，到叶子节点结束。</p>
-</li>
-</ul>
-<h2 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a>索引类型</h2><h3 id="主键索引-Primary-Key"><a href="#主键索引-Primary-Key" class="headerlink" title="主键索引(Primary Key)"></a>主键索引(Primary Key)</h3><p>数据表的主键列使用的就是主键索引。MySQL基于InnoDB存储引擎的表中，在未显式的指定表的主键时，InnoDB 首先会检查表中是否有唯一索引且不允许存在 null 值的字段，如果有，则选择该字段为默认的主键，否则 InnoDB 将会自动创建一个 6Byte 的自增主键。</p>
-<h3 id="二级索引-辅助索引"><a href="#二级索引-辅助索引" class="headerlink" title="二级索引(辅助索引)"></a>二级索引(辅助索引)</h3><p><strong>二级索引又称为辅助索引，是因为二级索引的叶子节点存储的数据是主键。也就是说，通过二级索引，可以定位主键的位置。简而言之，它是指向主键索引的索引</strong></p>
-<p>常见的唯一索引、普通索引、前缀索引均属于二级索引。</p>
-<ul>
-<li><strong>唯一索引：</strong>唯一索引的约束意义大于索引意义，它所关联的列不允许出现重复的数据，但是可以为null。建立该索引的目的大部分时候是为了保证该属性列的唯一性，而不是为了查询效率。</li>
-<li><strong>普通索引：</strong>普通索引的唯一作用就是加速查询。它允许数据重复与null。</li>
-<li><strong>前缀索引：</strong>仅适用于字符串类型，仅对文本的前几个字符创建索引。</li>
-<li><strong>全文索引：</strong>针对大文本内的关键词检索场景。MyISAM与Mysql 5.6之后的版本均支持。</li>
-</ul>
-<h2 id="聚簇索引与非聚簇索引"><a href="#聚簇索引与非聚簇索引" class="headerlink" title="聚簇索引与非聚簇索引"></a>聚簇索引与非聚簇索引</h2><h3 id="聚簇索引（聚集索引）"><a href="#聚簇索引（聚集索引）" class="headerlink" title="聚簇索引（聚集索引）"></a>聚簇索引（聚集索引）</h3><p><strong>聚簇索引即是指索引信息与数据信息存放在一起的索引，InnoDB中的主键索引就是典型的聚簇索引。</strong></p>
-<p><strong>聚簇索引的优缺点：</strong></p>
-<p><strong>优点：</strong></p>
-<ul>
-<li>基于聚簇索引的查询速度非常快，原因在于B+树是一颗多路平衡二叉树，而且其叶子节点也都是有序的。在定位到索引节点后，能从节点中读取到相应的数据。相较于非聚簇索引，它减少了一次IO操作。</li>
-<li>对排序查找与范围查找优化：基于主键的聚簇索引的排序查找和范围查找速度非常快。</li>
-<li>使用覆盖索引扫描的查询可以直接使用页结点中的主键值。</li>
-</ul>
-<p><strong>缺点：</strong></p>
-<ul>
-<li>聚簇索引最大限度地提高了I&#x2F;O密集型应用的性能，但如果数据全部都放在<strong>内存</strong>中，则访问的顺序就没那么重要了，聚簇索引也就没什么优势了。</li>
-<li>插入速度严重依赖于插入顺序。如果按照主键顺序插入数据，那么速度是最快的，且形成一个紧凑的索引结构，如果不是，那么在加载完成后最好使用OPTIMIZE TABLE重新组织一下表。由于每次插入主键的值近似于随机，因此每次新纪录都要被插到现有索引页得中间某个位置，那么可能会涉及到其他位置的数据位置进行频繁调整，降低效率。<strong>因此InnoDB一定建议使用自增逻辑主键。</strong></li>
-<li>当插入行的主键值要求必须将这一行插入到某个已满的页中时，存储引擎会将该页分裂成两个页面来容纳该行，这就是一次“<strong>页分裂</strong>”操作，页分裂会导致表占用更多的磁盘空间，并且使索引结构变得不紧凑（原本放在一个页的数据，现在分到两个页中，整体空间利用率降低大约50%），形成很多磁盘碎片，可能导致全表扫描变慢。</li>
-<li><strong>更新、删除聚簇索引列的代价同样很高</strong>，因为会强制InnoDB将每个被更新的行移动到新的位置，并涉及到其他行的位置移动，同样可能造成页分裂、磁盘碎片化、页合并等问题。</li>
-<li>聚簇索引可能导致全表扫描变慢，尤其是行比较稀疏，或者由于页分裂导致数据存储不连续的时候。</li>
-<li><strong>二级索引访问需要两次索引查找</strong>，而不是一次。因为二级索引叶子节点保存的不是指向行的物理位置的指针，而是行的主键值。二级索引查找行，存储引擎需要找到二级索引的叶子节点获得对应的主键值，然后根据这个值去聚簇索引中查找到对应的行，两次B-Tree查找。</li>
-</ul>
-<h3 id="非聚簇索引"><a href="#非聚簇索引" class="headerlink" title="非聚簇索引"></a>非聚簇索引</h3><p><strong>非聚簇索引即索引结构和数据分开存放的索引，二级索引就是典型的非聚簇索引。</strong>非聚簇索引的叶子节点并不一定存放数据的指针，因为二级索引的叶子节点就存放的主键，根据主键再回表查询数据。</p>
-<p><strong>非聚簇索引的优缺点：</strong></p>
-<p><strong>优点：</strong></p>
-<p>更新索引的代价比聚簇索引小，因为非聚簇索引的叶子节点是不存放数据的。</p>
-<p><strong>缺点：</strong></p>
-<ul>
-<li>依赖于有序的数据</li>
-<li>可能会二次查询（回表）。当查到索引对应的指针或主键后，可能还需要根据指针或者主键再到数据文件或者表中查询。<strong>这里的”可能”体现在，当索引字段就是需要返回的字段的时候是不用回表的，此时又可以称之为覆盖索引。</strong></li>
-</ul>
-<h2 id="覆盖索引与联合索引"><a href="#覆盖索引与联合索引" class="headerlink" title="覆盖索引与联合索引"></a>覆盖索引与联合索引</h2><h3 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a><strong>覆盖索引</strong></h3><p>如果一个索引包含（覆盖）了所有需要查询的字段的值，则将其称之为覆盖索引。覆盖索引的好处是可以减少一次回表操作，因为索引key已经涵盖了要查询的数据。</p>
-<h3 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h3><p>使用表中的多个字段创建索引，就是联合索引，也叫组合索引或者复合索引。</p>
-<h3 id="最左匹配原则"><a href="#最左匹配原则" class="headerlink" title="最左匹配原则"></a>最左匹配原则</h3><p>最左前缀匹配原则是指，当查询使用到联合索引时，会从左到右以此去匹配索引字段。如果查询条件中存在于联合索引中最左侧字段相匹配的字段，则会通过该字段过滤掉一部分数据，直至联合索引中的全部字段匹配完成，或者在执行过程中遇到了范围查询也会停止匹配。</p>
-<h3 id="索引下推"><a href="#索引下推" class="headerlink" title="索引下推"></a>索引下推</h3><p>索引下推是MySQL5.6版本中提供的一项索引优化功能。</p>
-<p><strong>使用下推索引与不使用的区别：</strong></p>
-<ul>
-<li><p>在不使用索引下推时，存储引擎通过索引检索到数据，然后返回给MySQL服务器，由服务器判断数据是否符合条件。</p>
-</li>
-<li><p>在使用索引下推时，如果粗在某些被索引列的判断条件，MySQL服务器会将这一部分的判断条件传递给存储引擎，这时候就不是由服务器去判断这部分条件了，而是由存储引擎判断索引是否符合条件。只有当索引符合条件时，存储引擎才会将检索到的数据返回给MySQL服务器。</p>
-</li>
-</ul>
-<p><strong>索引条件下推可以减少存储引擎查询基础表的次数，也可以减少MySQL服务其从存储引擎接收数据的次数。</strong></p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>MySQL索引详解：<a target="_blank" rel="noopener" href="https://javaguide.cn/database/mysql/mysql-index.html">https://javaguide.cn/database/mysql/mysql-index.html</a></li>
-</ul>
-
+                <p>LeetCode 21. <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/merge-two-sorted-lists/description/">合并两个有序链表</a></p>
+<p>将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Definition for singly-linked list.</span><br><span class="hljs-comment"> * public class ListNode &#123;</span><br><span class="hljs-comment"> *     int val;</span><br><span class="hljs-comment"> *     ListNode next;</span><br><span class="hljs-comment"> *     ListNode() &#123;&#125;</span><br><span class="hljs-comment"> *     ListNode(int val) &#123; this.val = val; &#125;</span><br><span class="hljs-comment"> *     ListNode(int val, ListNode next) &#123; this.val = val; this.next = next; &#125;</span><br><span class="hljs-comment"> * &#125;</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-keyword">public</span> ListNode <span class="hljs-title function_">mergeTwoLists</span><span class="hljs-params">(ListNode list1, ListNode list2)</span> &#123;<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">dummy</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListNode</span>(-<span class="hljs-number">1</span>);<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> dummy, p1 = list1, p2 = list2;<br>        <span class="hljs-comment">// 循环条件 p1 != null 或  p2 != null</span><br>        <span class="hljs-keyword">while</span>(p1 != <span class="hljs-literal">null</span> ||  p2 != <span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-keyword">if</span> (p1 == <span class="hljs-literal">null</span>)&#123;<br>                <span class="hljs-comment">// p1遍历结束，接上p2，跳出循环</span><br>                p.next = p2;<br>                <span class="hljs-keyword">break</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(p2 == <span class="hljs-literal">null</span>)&#123;<br>                <span class="hljs-comment">// p2遍历结束，接上p1，跳出循环</span><br>                p.next = p1;<br>                <span class="hljs-keyword">break</span>;<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(p1.val &lt;= p2.val)&#123;<br>                <span class="hljs-comment">// p1对应的值更小，接上p1</span><br>                p.next = p1;<br>                p1 = p1.next;<br>            &#125;<span class="hljs-keyword">else</span>&#123;<br>                <span class="hljs-comment">// p2对应的值更小，接上p1</span><br>                p.next = p2;<br>                p2 = p2.next;<br>            &#125;<br>            p = p.next;<br>        &#125;<br>        <span class="hljs-keyword">return</span> dummy.next;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -392,7 +319,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  <a href="/categories/LeetCode/" class="category-chain-item">LeetCode</a>
   
   
 
@@ -407,7 +334,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Mysql/">#Mysql</a>
+        <a href="/tags/%E9%93%BE%E8%A1%A8/">#链表</a>
       
     </div>
   
@@ -419,8 +346,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>MySQL索引总结</div>
-      <div>https://ahcit.github.io/2023/01/15/MySQL索引简介/</div>
+      <div>合并两个有序链表</div>
+      <div>https://ahcit.github.io/2023/02/19/合并两个有序链表/</div>
     </div>
     <div class="license-meta">
       
@@ -432,7 +359,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年1月15日</div>
+          <div>2023年2月19日</div>
         </div>
       
       
@@ -464,18 +391,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/01/18/MySQL%E6%95%B0%E6%8D%AE%E9%A1%B5%E5%88%86%E8%A3%82%E8%AF%A6%E8%A7%A3/" title="MySQL索引页分裂详解">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">MySQL索引页分裂详解</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/01/14/MySQL%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/" title="MySQL基础总结">
-                        <span class="hidden-mobile">MySQL基础总结</span>
+                      <a href="/2023/01/18/MySQL%E6%95%B0%E6%8D%AE%E9%A1%B5%E5%88%86%E8%A3%82%E8%AF%A6%E8%A7%A3/" title="MySQL索引页分裂详解">
+                        <span class="hidden-mobile">MySQL索引页分裂详解</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
