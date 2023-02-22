@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>LeetCode 206.反转链表</title>
+    <link href="/2023/02/23/LeetCode-206-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/"/>
+    <url>/2023/02/23/LeetCode-206-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8/</url>
+    
+    <content type="html"><![CDATA[<h3 id="LeetCode-206-反转链表"><a href="#LeetCode-206-反转链表" class="headerlink" title="LeetCode 206.  反转链表"></a>LeetCode 206.  <a href="https://leetcode.cn/problems/reverse-linked-list/description/">反转链表</a></h3><p>给你单链表的头节点 <code>head</code> ，请你反转链表，并返回反转后的链表。</p><p><strong>分析：</strong>本题用迭代法比较简单不做赘述，主要考虑如何用递归的方法实现。需要考虑的点有3个。</p><ol><li><strong>递归函数的设计：</strong>凡是用到递归的地方，首先要做的就是明确递归函数本身在完成一件什么样的事情。我这里的递归函数需要完成的事情就是给定一个单链表返回它反转后的结果。换句话说，只要是调用了了该函数，它返回的单链表一定被反转了。</li><li><strong>base case的分析：</strong>当单链表为空或者只有一个结点时显然直接返回即可。</li><li><strong>递归内部的反转逻辑：</strong>核心语句只有一句<code>head.next.next=head</code>。这句拆成两步来解读就很好理解了，假设<code>p = head.next</code>，则<code>head.next.next=head</code>就可以拆成<code>p=head.next</code>; <code>p.next=head</code>，这里就完成了反转的操作。但是不要忘记将<code>head.next</code>清空，不然head后面还连着<code>p</code>结点。</li></ol><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Definition for singly-linked list.</span><br><span class="hljs-comment"> * public class ListNode &#123;</span><br><span class="hljs-comment"> *     int val;</span><br><span class="hljs-comment"> *     ListNode next;</span><br><span class="hljs-comment"> *     ListNode() &#123;&#125;</span><br><span class="hljs-comment"> *     ListNode(int val) &#123; this.val = val; &#125;</span><br><span class="hljs-comment"> *     ListNode(int val, ListNode next) &#123; this.val = val; this.next = next; &#125;</span><br><span class="hljs-comment"> * &#125;</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><br>    <span class="hljs-keyword">public</span> ListNode <span class="hljs-title function_">reverseList</span><span class="hljs-params">(ListNode head)</span> &#123;<br>        <span class="hljs-keyword">return</span> reverse(head);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> ListNode <span class="hljs-title function_">reverse</span><span class="hljs-params">(ListNode head)</span> &#123;<br>        <span class="hljs-keyword">if</span> (head == <span class="hljs-literal">null</span> || head.next == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">return</span> head;<br>        &#125;<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">last</span> <span class="hljs-operator">=</span> reverse(head.next);<br>        head.next.next = head;<br>        head.next = <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">return</span> last;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>LeetCode</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>链表</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>LeetCode 19. 删除链表的倒数第 N 个结点</title>
     <link href="/2023/02/20/LeetCode-19-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%AC-N-%E4%B8%AA%E7%BB%93%E7%82%B9/"/>
     <url>/2023/02/20/LeetCode-19-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%AC-N-%E4%B8%AA%E7%BB%93%E7%82%B9/</url>
