@@ -1,0 +1,834 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="行舟">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="浅聊注册中心注册中心诞生的背景​        单体应用架构中，所有的业务逻辑都紧密地耦合在一个应用中，整个系统相对封闭且复杂，很难进行扩展和重构。此时不同的功能只是项目中的一个模块、一个包、一个类甚至于只是一个方法，功能的调用实际就是对项目内的方法进行调用。 ​        随着企业业务的不断发展，单节点的单体应用无法满足业务需求。于是，企业将单体应用部署多份，分别放在不同的服务器上。然而，不">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅聊注册中心">
+<meta property="og:url" content="https://ahcit.github.io/2023/03/24/%E6%B5%85%E8%81%8A%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/index.html">
+<meta property="og:site_name" content="行舟">
+<meta property="og:description" content="浅聊注册中心注册中心诞生的背景​        单体应用架构中，所有的业务逻辑都紧密地耦合在一个应用中，整个系统相对封闭且复杂，很难进行扩展和重构。此时不同的功能只是项目中的一个模块、一个包、一个类甚至于只是一个方法，功能的调用实际就是对项目内的方法进行调用。 ​        随着企业业务的不断发展，单节点的单体应用无法满足业务需求。于是，企业将单体应用部署多份，分别放在不同的服务器上。然而，不">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ahcit.github.io/2023/03/24/%E6%B5%85%E8%81%8A%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/image-20230324000920061.png">
+<meta property="og:image" content="https://ahcit.github.io/2023/03/24/%E6%B5%85%E8%81%8A%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/118bc4dd47460f48be14bb1ee0168295.jpg">
+<meta property="article:published_time" content="2023-03-24T00:11:27.000Z">
+<meta property="article:modified_time" content="2023-03-23T16:18:23.281Z">
+<meta property="article:author" content="行舟">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ahcit.github.io/2023/03/24/%E6%B5%85%E8%81%8A%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/image-20230324000920061.png">
+  
+  
+  
+  <title>浅聊注册中心 - 行舟</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ahcit.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"yoLmWK0iNdcEMARAqNnAccsm-gzGzoHsz","app_key":"AqZlDi7H00mT33OT16ur41MG","server_url":"https://yolmwk0i.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>行舟</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="浅聊注册中心"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-24 00:11" pubdate>
+          2023年3月24日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          65 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">浅聊注册中心</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="浅聊注册中心"><a href="#浅聊注册中心" class="headerlink" title="浅聊注册中心"></a>浅聊注册中心</h1><h2 id="注册中心诞生的背景"><a href="#注册中心诞生的背景" class="headerlink" title="注册中心诞生的背景"></a>注册中心诞生的背景</h2><p>​        <strong>单体应用架构</strong>中，所有的业务逻辑都紧密地耦合在一个应用中，整个系统相对封闭且复杂，很难进行扩展和重构。此时不同的功能只是项目中的一个模块、一个包、一个类甚至于只是一个方法，功能的调用实际就是对项目内的方法进行调用。</p>
+<p>​        随着企业业务的不断发展，单节点的单体应用无法满足业务需求。于是，企业将单体应用部署多份，分别放在不同的服务器上。然而，不是所有的模块都有比较大的访问量。如果想针对项目中的某些模块进行优化和性能提升，对于单体应用来说，是做不到的。于是，垂直应用架构诞生了。<strong>垂直应用架构</strong>将原来的项目应用拆分为互不相干的几个应用，以此提升系统的整体性能。</p>
+<p>然而业务不会停止，垂直应用不断的增加。在应用数量不断扩张的过程中，一些较为核心和基础的应用不可避免需要被其他应用反复调用，此时为了更好的服务各个业务系统，提升系统的复用性、灵活性，于是将这些较为核心的业务抽离出来，形成统一的服务。在这一过程中，应用系统被抽象为一个个独立的 <strong>服务</strong> ，构建松耦合服务架构，即 <strong>分布式架构</strong>。在分布式架构中，我们会将系统整体拆分为服务层和表现层。服务层封装了具体的业务逻辑供表现层调用，表现层则负责处理与页面的交互操作。</p>
+<p>​       在分布式架构下，当部署的服务越来越多时，重复的代码就会变得越来越多，不利于代码的复用和系统维护。为此，我们需要增加一个统一的调度中心对集群进行实时管理，这就是<strong>SOA(面向服务)架构</strong>。</p>
+<p>​       <strong>SOA架构</strong>也有缺点，例如各服务之间存在依赖关系，如果某个服务出现故障，可能会造成服务器崩溃。<strong>微服务架构</strong>是在SOA架构的基础上进行进一步的扩展和拆分。在微服务架构下，一个大的项目拆分为一个个小的可独立部署的微服务，每个微服务都有自己的数据库。各服务独立打包、独立部署和独立升级；负责的业务比较清晰，利于后期扩展和维护；微服务之间可以采用REST和RPC协议进行通信。</p>
+<p>至此，在架构演进过程中出现了 <strong>服务</strong> 的概念。在微服务架构中，围绕服务诞生了 <strong>服务提供者</strong> 和 <strong>服务消费者</strong> 两种角色，服务消费者通过调用服务提供者提供的服务来完成对应的业务。为了调用服务提供者提供的服务，服务消费者就必须获取服务提供者的调用信息比如调用地址、健康状况等。由于现有系统的复杂性不断提高以及容器部署方式的推行，服务消费者的调用信息无法简单地通过静态配置文件来保存，服务发现的工具—— <strong>注册中心</strong> 由此诞生。</p>
+<h2 id="注册中心的作用"><a href="#注册中心的作用" class="headerlink" title="注册中心的作用"></a>注册中心的作用</h2><ul>
+<li><p><strong>服务注册</strong> ：当服务提供者上线时，服务提供者可以通过注册中心提供的注册接口将所提供的服务的调用地址和元数据等注册到注册中心上，用于服务消费者进行服务调用信息查询；</p>
+</li>
+<li><p><strong>服务注销</strong> ：当服务提供者下线时，服务提供者可以通过注册中心提供的注销接口将所提供的服务的调用地址和元数据等注销；</p>
+</li>
+<li><p><strong>健康状况监测</strong>：</p>
+<ul>
+<li><p>一种是 <strong>服务自主上报方式</strong> ，即服务提供者定时通过注册中心提供的心跳上报接口将心跳上报给注册中心，注册中心通过监测心跳时间来判断该服务提供者是否健康，如果长时间没有收到心跳则认为该服务提供者处于故障状态，变更其服务状态为无服务（或故障中）；</p>
+</li>
+<li><p>另一种是 <strong>注册中心主动探测方式</strong> ，即服务提供者提供健康监测接口用于注册中心定时触发，用以确定当前服务提供是否处于健康状态；</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>从服务消费者的角度来看，注册中心需要提供以下能力：</strong></p>
+<ul>
+<li><strong>获取服务列表</strong> ：服务消费者可以通过注册中心提供的服务查询接口获取对应服务的调用信息；</li>
+<li><strong>服务状态变更事件推送</strong>：当服务提供者的服务集群有新的实例上线，或服务提供者实例下线，亦或者服务提供者处于故障状态不可用时，应当将对应的服务状态信息通知到服务消费者；</li>
+</ul>
+<h2 id="常见注册中心"><a href="#常见注册中心" class="headerlink" title="常见注册中心"></a>常见注册中心</h2><h3 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h3><p>​        官方并没有将Zookeeper单纯地定义为一个注册中心，但是国内Dubbo场景下很多都是使用Zookeeper来完成了注册中心的功能。在国内环境下，由于受到Dubbo框架的影响，大部分情况下认为Zookeeper是RPC服务框架下注册中心最好选择，随着Dubbo框架的不断开发优化，和各种注册中心组件的诞生，即使是RPC框架，现在的注册中心也逐步放弃了Zookeeper。但是在常用的开发集群环境中，Zookeeper依然起到十分重要的作用，Java体系中，大部分的集群环境都是依赖Zookeeper管理服务的各个节点。那么Zookeeper是如何实现注册中心的呢？</p>
+<p>​        Zookeeper可以充当一个服务注册表（Service Registry），让多个服务提供者形成一个集群，让服务消费者通过服务注册表获取具体的服务访问地址（IP+端口）去访问具体的服务提供者。每当一个服务提供者部署后都要将自己的服务注册到Zookeeper的某一路径上: &#x2F;{service}&#x2F;{version}&#x2F;{IP:port} 。比如我们的HelloWorldService部署到两台机器，那么Zookeeper上就会创建两条目录：</p>
+<ol>
+<li>&#x2F;HelloWorldService&#x2F;1.0.0&#x2F;100.19.20.01:16888</li>
+<li>&#x2F;HelloWorldService&#x2F;1.0.0&#x2F;100.19.20.02:16888</li>
+</ol>
+<p>这么描述有点不好理解，下图更直观：</p>
+<img src="/2023/03/24/%E6%B5%85%E8%81%8A%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/image-20230324000920061.png" srcset="/img/loading.gif" lazyload class="" title="示意图">
+
+<p>在Zookeeper中，进行服务注册，实际上就是在Zookeeper中创建了一个znode节点，该节点存储了该服务的IP、端口、调用方式(协议、序列化方式)等。该节点承担着最重要的职责，它由服务提供者(发布服务时)创建，以供服务消费者获取节点中的信息，从而定位到服务提供者真正网络拓扑位置以及得知如何调用。</p>
+<p><strong>RPC服务注册&#x2F;发现过程简述如下：</strong></p>
+<ol>
+<li>服务提供者启动时，会将其服务名称，IP地址注册到配置中心。</li>
+<li>服务消费者在第一次调用服务时，会通过注册中心找到相应的服务的IP地址列表，并缓存到本地，以供后续使用。当消费者调用服务时，不会再去请求注册中心，而是直接通过负载均衡算法从IP列表中取一个服务提供者的服务器调用服务。</li>
+<li>当服务提供者的某台服务器宕机或下线时，相应的IP会从服务提供者IP列表中移除。同时，注册中心会将新的服务IP地址列表发送给服务消费者机器，缓存在消费者本机。</li>
+<li>当某个服务的所有服务器都下线了，那么这个服务也就下线了。</li>
+<li>同样，当服务提供者的某台服务器上线时，注册中心会将新的服务IP地址列表发送给服务消费者机器，缓存在消费者本机。</li>
+<li>服务提供方可以根据服务消费者的数量来作为服务下线的依据。</li>
+</ol>
+<p>Zookeeper提供了“心跳检测”功能：<strong>它会定时向各个服务提供者发送一个请求（实际上建立的是一个 socket 长连接），如果长期没有响应，服务中心就认为该服务提供者已经“挂了”，并将其剔除。</strong></p>
+<p>比如100.100.0.237这台机器如果宕机了，那么Zookeeper上的路径就会只剩&#x2F;HelloWorldService&#x2F;1.0.0&#x2F;100.100.0.238:16888。</p>
+<p>Zookeeper的Watch机制其实就是一种<strong>推拉结合的模式</strong>：</p>
+<ul>
+<li>服务消费者会去监听相应路径（&#x2F;HelloWorldService&#x2F;1.0.0），一旦路径上的数据有任务变化（增加或减少），<strong>Zookeeper只会发送一个事件类型和节点信息给关注的客户端，而不会包括具体的变更内容</strong>，所以事件本身是轻量级的，这就是推的部分。</li>
+<li><strong>收到变更通知的客户端需要自己去拉变更的数据</strong>，这就是拉的部分。</li>
+</ul>
+<h3 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h3><p>​       Eureka是Netflix开发的服务发现框架，本身是一个基于REST的服务，主要用于定位运行在AWS域中的中间层服务，以达到负载均衡和中间层服务故障转移的目的。SpringCloud将它集成在其子项目spring-cloud-netflix中，以实现SpringCloud的服务发现功能。 Eureka包含两个组件：Eureka Server和Eureka Client。</p>
+<h4 id="Eureka-Server"><a href="#Eureka-Server" class="headerlink" title="Eureka Server"></a><strong>Eureka Server</strong></h4><p>Eureka Server提供服务注册服务，各个节点启动后，会在Eureka Server中进行注册，这样Eureka Server中的服务注册表中将会存储所有可用服务节点的信息，服务节点的信息可以在界面中直观的看到。<br>　　Eureka Server本身也是一个服务，默认情况下会自动注册到Eureka注册中心。<strong>如果搭建单机版的Eureka Server注册中心，则需要配置取消Eureka Server的自动注册逻辑。</strong>毕竟当前服务注册到当前服务代表的注册中心中是一个说不通的逻辑。<br>　　Eureka Server通过<strong>Register、Get、Renew</strong>等接口提供服务的<strong>注册、发现和心跳检测</strong>等服务。</p>
+<h4 id="Eureka-Client"><a href="#Eureka-Client" class="headerlink" title="Eureka Client"></a><strong>Eureka Client</strong></h4><p>Eureka Client是一个java客户端，用于简化与Eureka Server的交互，<strong>客户端同时也具备一个内置的、使用轮询(round-robin)负载算法的负载均衡器。在应用启动后</strong>，将会向Eureka Server发送心跳,<strong>默认周期为30秒</strong>，如果Eureka Server在多个心跳周期内没有接收到某个节点的心跳，Eureka Server将会从服务注册表中把这个**服务节点移除(默认90秒)**。Eureka Client分为两个角色，分别是：Application Service(Service Provider)和Application Client(Service Consumer)。</p>
+<ul>
+<li><strong>Application Service</strong></li>
+</ul>
+<p>服务提供方，是注册到Eureka Server中的服务。</p>
+<ul>
+<li><strong>Application Client</strong></li>
+</ul>
+<p>服务消费方，通过Eureka Server发现服务，并消费。</p>
+<blockquote>
+<p>在这里，Application Service和Application Client不是绝对上的定义，因为Provider在提供服务的同时，也可以消费其他Provider提供的服务；Consumer在消费服务的同时，也可以提供对外服务。</p>
+</blockquote>
+<h4 id="Eureka-特点"><a href="#Eureka-特点" class="headerlink" title="Eureka 特点"></a><strong>Eureka 特点</strong></h4><ul>
+<li><strong>可用性（AP原则）</strong>：Eureka 在设计时就紧遵AP原则，Eureka的集群中，只要有一台Eureka还在，就能保证注册服务可用，只不过查到的信息可能不是最新的（不保证强一致性）。</li>
+<li><strong>去中心化架构</strong>：Eureka Server 可以运行多个实例来构建集群，不同于 ZooKeeper 的选举 leader 的过程，Eureka Server 采用的是Peer to Peer 对等通信。这是一种去中心化的架构，无 master&#x2F;slave 之分，每一个 Peer 都是对等的。节点通过彼此互相注册来提高可用性，每个节点需要添加一个或多个有效的 serviceUrl 指向其他节点。每个节点都可被视为其他节点的副本。</li>
+<li><strong>请求自动切换</strong>：在集群环境中如果某台 Eureka Server 宕机，Eureka Client 的请求会自动切换到新的 Eureka Server 节点上，当宕机的服务器重新恢复后，Eureka 会再次将其纳入到服务器集群管理之中。</li>
+<li><strong>节点间操作复制</strong>：当节点开始接受客户端请求时，所有的操作都会在节点间进行复制操作，将请求复制到该 Eureka Server 当前所知的其它所有节点中。</li>
+<li><strong>自动注册&amp;心跳</strong>：当一个新的 Eureka Server 节点启动后，会首先尝试从邻近节点获取所有注册列表信息，并完成初始化。Eureka Server 通过 getEurekaServiceUrls() 方法获取所有的节点，并且会通过心跳契约的方式定期更新。</li>
+<li><strong>自动下线</strong>：默认情况下，如果 Eureka Server 在一定时间内没有接收到某个服务实例的心跳（默认周期为30秒），Eureka Server 将会注销该实例（默认为90秒， eureka.instance.lease-expiration-duration-in-seconds 进行自定义配置）。</li>
+<li><strong>保护模式</strong>：当 Eureka Server 节点在短时间内丢失过多的心跳时，那么这个节点就会进入自我保护模式。</li>
+</ul>
+<p>除了上述特点，Eureka还有一种自我保护机制，如果在15分钟内超过 <strong>85%</strong> 的节点都没有正常的心跳，那么Eureka就认为客户端与注册中心出现了网络故障，此时会出现以下几种情况：</p>
+<ul>
+<li>Eureka不再从注册表中移除因为长时间没有收到心跳而过期的服务；</li>
+<li>Eureka仍然能够接受新服务注册和查询请求，但是不会被同步到其它节点上（即保证当前节点依然可用）</li>
+<li>当网络稳定时，当前实例新注册的信息会被同步到其它节点中。</li>
+</ul>
+<h4 id="Eureka工作流程"><a href="#Eureka工作流程" class="headerlink" title="Eureka工作流程"></a>Eureka工作流程</h4><p>了解完 Eureka 核心概念，自我保护机制，以及集群内的工作原理后，我们来整体梳理一下 Eureka 的工作流程：</p>
+<ol>
+<li>Eureka Server 启动成功，等待服务端注册。在启动过程中如果配置了集群，集群之间定时通过 Replicate 同步注册表，每个 Eureka Server 都存在独立完整的服务注册表信息。</li>
+<li>Eureka Client 启动时根据配置的 Eureka Server 地址去注册中心注册服务。</li>
+<li>Eureka Client 会每 30s 向 Eureka Server 发送一次心跳请求，证明客户端服务正常。</li>
+<li>当 Eureka Server 90s 内没有收到 Eureka Client 的心跳，注册中心则认为该节点失效，会注销该实例。</li>
+<li>单位时间内 Eureka Server 统计到有大量的 Eureka Client 没有上送心跳，则认为可能为网络异常，进入自我保护机制，不再剔除没有上送心跳的客户端。</li>
+<li>当 Eureka Client 心跳请求恢复正常之后，Eureka Server 自动退出自我保护模式。</li>
+<li>Eureka Client 定时全量或者增量从注册中心获取服务注册表，并且将获取到的信息缓存到本地。</li>
+<li>服务调用时，Eureka Client 会先从本地缓存找寻调取的服务。如果获取不到，先从注册中心刷新注册表，再同步到本地缓存。</li>
+<li>Eureka Client 获取到目标服务器信息，发起服务调用。</li>
+<li>Eureka Client 程序关闭时向 Eureka Server 发送取消请求，Eureka Server 将实例从注册表中删除。</li>
+</ol>
+<blockquote>
+<p>通过分析 Eureka 工作原理，我可以明显地感觉到 Eureka 的设计之巧妙，完美地解决了注册中心的稳定性和高可用性。</p>
+<p>Eureka 为了保障注册中心的高可用性，容忍了数据的非强一致性，服务节点间的数据可能不一致， Client-Server 间的数据可能不一致。<strong>比较适合跨越多机房、对注册中心服务可用性要求较高的使用场景。</strong></p>
+</blockquote>
+<h3 id="Nacos"><a href="#Nacos" class="headerlink" title="Nacos"></a>Nacos</h3><p>Nacos &#x2F;nɑ:kəʊs&#x2F; 是 Dynamic Naming and Configuration Service的首字母简称，一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。是阿里开源的，支持基于 DNS 和基于 RPC 的服务发现的注册中心。它既支持<strong>CP也支持AP</strong>，对其而言只是一个命令的切换，同时还支持各种注册中心迁移到Nacos。<strong>除了服务的注册发现之外，还支持动态配置服务</strong>，一句话概括就是<strong>Nacos &#x3D; Spring Cloud注册中心 + Spring Cloud配置中心</strong>。</p>
+<h4 id="Nacos-的关键特性"><a href="#Nacos-的关键特性" class="headerlink" title="Nacos 的关键特性"></a>Nacos 的关键特性</h4><ul>
+<li><p><strong>服务发现和服务健康监测</strong></p>
+<p>​        Nacos 支持基于 DNS 和基于 RPC 的服务发现。服务提供者使用 <a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/sdk.html">原生SDK</a>、<a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/open-api.html">OpenAPI</a>、或一个<a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/other-language.html">独立的Agent TODO</a>注册 Service 后，服务消费者可以使用<a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/xx">DNS TODO</a> 或<a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/open-api.html">HTTP&amp;API</a>查找和发现服务。</p>
+<p>​        Nacos 提供对服务的实时的健康检查，阻止向不健康的主机或服务实例发送请求。Nacos 支持传输层 (PING 或 TCP)和应用层 (如 HTTP、MySQL、用户自定义）的健康检查。 对于复杂的云环境和网络拓扑环境中（如 VPC、边缘网络等）服务的健康检查，Nacos 提供了 agent 上报模式和服务端主动检测2种健康检查模式。Nacos 还提供了统一的健康检查仪表盘，帮助您根据健康状态管理服务的可用性及流量。</p>
+</li>
+<li><p><strong>动态配置服务</strong></p>
+<p>动态配置服务可以让您以中心化、外部化和动态化的方式管理所有环境的应用配置和服务配置。</p>
+<p>动态配置消除了配置变更时重新部署应用和服务的需要，让配置管理变得更加高效和敏捷。</p>
+<p>配置中心化管理让实现无状态服务变得更简单，让服务按需弹性扩展变得更容易。</p>
+<p>Nacos 提供了一个简洁易用的UI (<a target="_blank" rel="noopener" href="http://console.nacos.io/nacos/index.html">控制台样例 Demo</a>) 帮助您管理所有的服务和应用的配置。Nacos 还提供包括配置版本跟踪、金丝雀发布、一键回滚配置以及客户端配置更新状态跟踪在内的一系列开箱即用的配置管理特性，帮助您更安全地在生产环境中管理配置变更和降低配置变更带来的风险。</p>
+</li>
+<li><p><strong>动态 DNS 服务</strong></p>
+<p>动态 DNS 服务支持权重路由，让您更容易地实现中间层负载均衡、更灵活的路由策略、流量控制以及数据中心内网的简单DNS解析服务。动态DNS服务还能让您更容易地实现以 DNS 协议为基础的服务发现，以帮助您消除耦合到厂商私有服务发现 API 上的风险。</p>
+<p>Nacos 提供了一些简单的 <a target="_blank" rel="noopener" href="https://nacos.io/zh-cn/docs/xx">DNS APIs TODO</a> 帮助您管理服务的关联域名和可用的 IP:PORT 列表.</p>
+</li>
+<li><p><strong>服务及其元数据管理</strong></p>
+<p>Nacos 能让您从微服务平台建设的视角管理数据中心的所有服务及元数据，包括管理服务的描述、生命周期、服务的静态依赖分析、服务的健康状态、服务的流量管理、路由及安全策略、服务的 SLA 以及最首要的 metrics 统计数据。</p>
+</li>
+</ul>
+<h4 id="Nacos的Server与Client"><a href="#Nacos的Server与Client" class="headerlink" title="Nacos的Server与Client"></a>Nacos的Server与Client</h4><p>​        Nacos注册中心分为Server与Client，Nacos提供SDK和openApi，如果没有SDK也可以根据openApi手动写服务注册与发现和配置拉取的逻辑。Server采用Java编写，基于Spring Boot框架，为Client提供注册发现服务与配置服务。Client支持包含了目前已知的Nacos多语言客户端及Spring生态的相关客户端。Client与微服务嵌套在一起。Nacos的DNS实现依赖了CoreDNS，其项目为nacos-coredns-plugin。该插件提供了基于CoreDNS的DNS-F客户端，开发语言为go。</p>
+<h4 id="Nacos注册中的交互流程"><a href="#Nacos注册中的交互流程" class="headerlink" title="Nacos注册中的交互流程"></a>Nacos注册中的交互流程</h4><p>作为注册中心的功能来说，Nacos提供的功能与其他主流框架很类似，基本都是围绕服务实例注册、实例健康检查、服务实例获取这三个核心来实现的。</p>
+<img src="/2023/03/24/%E6%B5%85%E8%81%8A%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/118bc4dd47460f48be14bb1ee0168295.jpg" srcset="/img/loading.gif" lazyload class="" title="示意图">
+
+<p><strong>Nacos服务注册流程</strong></p>
+<p>以Java版本的Nacos客户端为例，服务注册基本流程：</p>
+<pre><code class="hljs">1. 服务实例启动将自身注册到Nacos注册中心，随后维持与注册中心的心跳;
+2. 心跳维持策略为每5秒向Nacos Server发送一次心跳，并携带实例信息(服务名、实例IP、端口等);
+3. Nacos Server也会向Client主动发起健康检查，支持TCP/Http;
+4. 15秒内无心跳且健康检查失败则认为实例不健康，如果30秒内健康检查失败则剔除实例;
+5. 服务消费者通过注册中心获取实例，并发起调用;
+</code></pre>
+<p><strong>其中服务发现支持两种场景：</strong></p>
+<ol>
+<li><p>服务消费者直接向注册中心发送获取某服务实例的请求，注册中心返回所有可用实例，但一般不推荐此种方式；</p>
+</li>
+<li><p>服务消费者向注册中心订阅某服务，并提交一个监听器，当注册中心中服务发生变化时，监听器会收到通知，消费者更新本地服务实例列表，以保证所有的服务均可用。</p>
+</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>浅聊注册中心</div>
+      <div>https://ahcit.github.io/2023/03/24/浅聊注册中心/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>行舟</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/19/LeetCode-105-%E4%BB%8E%E5%89%8D%E5%BA%8F%E4%B8%8E%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E6%A0%91/" title="LeetCode 105. 从前序与中序遍历序列构造二叉树">
+                        <span class="hidden-mobile">LeetCode 105. 从前序与中序遍历序列构造二叉树</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客人数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
