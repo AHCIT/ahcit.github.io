@@ -24,7 +24,7 @@
 <meta property="og:description" content="LeetCode 80.  删除数组中的重复项II给你一个有序数组 nums ，请你  原地 删除重复出现的元素，使得出现次数超过两次的元素只出现两次 ，返回删除后数组的新长度。 不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。 分析：特殊情况下当数组只有两个元素时，可以不做判断直接返回。原因在于：这两个元素要么是(a, a)，要么是(a, b)。不">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-10-28T12:23:47.000Z">
-<meta property="article:modified_time" content="2023-10-28T04:44:20.872Z">
+<meta property="article:modified_time" content="2023-10-28T08:28:16.253Z">
 <meta property="article:author" content="行舟">
 <meta property="article:tag" content="双指针">
 <meta property="article:tag" content="快慢指针">
@@ -238,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          658 字
+          659 字
         
       </span>
     
@@ -303,7 +303,7 @@
                 <h3 id="LeetCode-80-删除数组中的重复项II"><a href="#LeetCode-80-删除数组中的重复项II" class="headerlink" title="LeetCode 80.  删除数组中的重复项II"></a>LeetCode 80.  <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/remove-duplicates-from-sorted-array-ii/description">删除数组中的重复项II</a></h3><p>给你一个有序数组 <code>nums</code> ，请你 <strong><a target="_blank" rel="noopener" href="http://baike.baidu.com/item/%E5%8E%9F%E5%9C%B0%E7%AE%97%E6%B3%95"> 原地</a></strong> 删除重复出现的元素，使得出现次数超过两次的元素<strong>只出现两次</strong> ，返回删除后数组的新长度。</p>
 <p>不要使用额外的数组空间，你必须在 <strong><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%8E%9F%E5%9C%B0%E7%AE%97%E6%B3%95">原地 </a>修改输入数组</strong> 并在使用 O(1) 额外空间的条件下完成。</p>
 <p><strong>分析：</strong>特殊情况下当数组只有两个元素时，可以不做判断直接返回。原因在于：这两个元素要么是(a, a)，要么是(a, b)。不论是哪种情况都符合题目的要求，所以可以直接返回。当我们引入第三个元素时，需要判断这个元素重复出现的次数是否超过两次。正常的想法是去比较之前出现的两个元素，但是我们可以利用的性质是：首位两个元素必然是符合条件的，因此只要判断第三个元素是否与第一个元素重复。如果重复的话那么该元素出现的次数一定超过两次，否则不会超过两次。以此类推，我们可以依次比较后续的每一位元素。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">removeDuplicates</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>        <span class="hljs-keyword">if</span>(nums.length &lt; <span class="hljs-number">3</span>)&#123;<br>            <span class="hljs-keyword">return</span> nums.length;<br>        &#125;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">fast</span> <span class="hljs-operator">=</span> <span class="hljs-number">2</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">slow</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">while</span>(fast &lt; nums.length)&#123;<br>            <span class="hljs-keyword">if</span>(nums[slow-<span class="hljs-number">1</span>] != nums[fast])&#123;<br>                slow++;<br>                nums[slow] = nums[fast];<br>            &#125;<br>            fast++;<br>        &#125;<br>        <span class="hljs-keyword">return</span> slow + <span class="hljs-number">1</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">removeDuplicates</span><span class="hljs-params">(<span class="hljs-type">int</span>[] nums)</span> &#123;<br>        <span class="hljs-keyword">if</span>(nums.length &lt;= <span class="hljs-number">2</span>)&#123;<br>            <span class="hljs-keyword">return</span> nums.length;<br>        &#125;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">fast</span> <span class="hljs-operator">=</span> <span class="hljs-number">2</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">slow</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">while</span>(fast &lt; nums.length)&#123;<br>            <span class="hljs-keyword">if</span>(nums[slow-<span class="hljs-number">1</span>] != nums[fast])&#123;<br>                slow++;<br>                nums[slow] = nums[fast];<br>            &#125;<br>            fast++;<br>        &#125;<br>        <span class="hljs-keyword">return</span> slow + <span class="hljs-number">1</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -394,6 +394,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2023/10/28/Kafka%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84/" title="Kafka是如何工作的">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kafka是如何工作的</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
