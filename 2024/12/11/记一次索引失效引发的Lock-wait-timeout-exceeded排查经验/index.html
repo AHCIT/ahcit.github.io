@@ -23,16 +23,16 @@
 <meta property="og:site_name" content="行舟">
 <meta property="og:description" content="前言今天想和大家聊的是关于线上Lock wait timeout exceeded问题的排查与可行的解决思路。之所以想聊这个也是因为自己在排查的过程中发现，很多问题只有自己亲自花时间去研究、去解决才有机会迎接挑战、收获经验。 问题背景近期在浏览线上订单业务的监控页面时，发现订单创建接口耗时模块存在大量尖刺。有些调用的耗时甚至达到了50s以上。作为一名强迫症患者看着这个监控页面属实给我整急了，我立马">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/be1dbf881fa2419e8a584a68e8882c96~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgQ0lU:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMTYzMjE1NTA5MjkxNTA2OSJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1734452005&x-orig-sign=btai0ECFB7nRuNU3JY9qQMzqB10=">
-<meta property="og:image" content="https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/3ce6a9805b5341509c5d7b572a7f893d~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgQ0lU:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMTYzMjE1NTA5MjkxNTA2OSJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1734452005&x-orig-sign=HjOZyvI4ImkZAU2g7FQMdaO6Qt8=">
+<meta property="og:image" content="https://ahcit.github.io/2024/12/11/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%BC%95%E5%8F%91%E7%9A%84Lock-wait-timeout-exceeded%E6%8E%92%E6%9F%A5%E7%BB%8F%E9%AA%8C/img.png">
+<meta property="og:image" content="https://ahcit.github.io/2024/12/11/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%BC%95%E5%8F%91%E7%9A%84Lock-wait-timeout-exceeded%E6%8E%92%E6%9F%A5%E7%BB%8F%E9%AA%8C/img_1.png">
 <meta property="article:published_time" content="2024-12-10T23:19:49.000Z">
-<meta property="article:modified_time" content="2024-12-10T16:14:55.023Z">
+<meta property="article:modified_time" content="2025-03-29T06:42:35.759Z">
 <meta property="article:author" content="行舟">
 <meta property="article:tag" content="Mysql">
 <meta property="article:tag" content="索引">
 <meta property="article:tag" content="线上问题">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/be1dbf881fa2419e8a584a68e8882c96~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgQ0lU:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMTYzMjE1NTA5MjkxNTA2OSJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1734452005&x-orig-sign=btai0ECFB7nRuNU3JY9qQMzqB10=">
+<meta name="twitter:image" content="https://ahcit.github.io/2024/12/11/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%BC%95%E5%8F%91%E7%9A%84Lock-wait-timeout-exceeded%E6%8E%92%E6%9F%A5%E7%BB%8F%E9%AA%8C/img.png">
   
   
   
@@ -313,10 +313,12 @@
 <li>显式使用<code>LOCK IN SHARE MODE</code> 和 <code>FOR UPDATE</code></li>
 <li>全表扫描导致的锁</li>
 </ol>
-<p><img src="https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/be1dbf881fa2419e8a584a68e8882c96~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgQ0lU:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMTYzMjE1NTA5MjkxNTA2OSJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1734452005&x-orig-sign=btai0ECFB7nRuNU3JY9qQMzqB10=" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<img src="/2024/12/11/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%BC%95%E5%8F%91%E7%9A%84Lock-wait-timeout-exceeded%E6%8E%92%E6%9F%A5%E7%BB%8F%E9%AA%8C/img.png" srcset="/img/loading.gif" lazyload class="" title="接口耗时图">
+
 <p align=center>图 1.订单创建接口调用耗时监控图</p>
 
-<p><img src="https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/3ce6a9805b5341509c5d7b572a7f893d~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAgQ0lU:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiMTYzMjE1NTA5MjkxNTA2OSJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1734452005&x-orig-sign=HjOZyvI4ImkZAU2g7FQMdaO6Qt8=" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<img src="/2024/12/11/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E5%BC%95%E5%8F%91%E7%9A%84Lock-wait-timeout-exceeded%E6%8E%92%E6%9F%A5%E7%BB%8F%E9%AA%8C/img_1.png" srcset="/img/loading.gif" lazyload class="" title="错误堆栈图">
+
 <p align=center>图 2.订单插入接口错误堆栈图</p>
 通过一轮的代码筛查后，我可以断定并非由前三个原因而是因为索引失效引发全表扫描导致的。为啥这么肯定？请看以下代码片段，这么多查询组合，都能走索引吗？显然不能。在MySQL中，当出现了索引失效的情况时，MySQL会对整张表进行扫描，逐行读取数据，检查是否符合查询条件。这种操作会极大增加查询的执行时间，特别是在数据量大的情况下，性能损耗明显。如果此时另一个事务尝试插入数据，且插入的数据会导致行级锁冲突（例如插入的数据与扫描的数据范围重叠），就可能会发生锁等待。结合具体的业务代码，问题的答案也有了：查询时索引失效引发了锁表，导致同一时刻的Insert操作锁等待异常。
 

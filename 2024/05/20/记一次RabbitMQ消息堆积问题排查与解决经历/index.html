@@ -23,17 +23,17 @@
 <meta property="og:site_name" content="行舟">
 <meta property="og:description" content="记一次RabbitMQ消息堆积问题排查与解决经历今天想和大家聊一下，最近线上遇到的一个问题。这个问题是隔壁团队爆出来的，由于我跟他们组长关系还不错，就一起帮着看一下了，没想到一看还真让我找到了。最后发现原因其实不复杂，主要是排查过程上可能走了一些弯路。为了保护公司隐私，我会在后续的描述中把业务上的内容先屏蔽掉。 问题背景近期，公司对接了一个大客户，该客户会向我们平台RabbitMQ发送相关的硬件数">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ee8718433af842eba25f86db07b61511~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3562&h=1603&s=1498419&e=png&b=222126">
-<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/827b336fc0cb44d08a0086037545234f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3775&h=1212&s=159252&e=png&b=222225">
+<meta property="og:image" content="https://ahcit.github.io/2024/05/20/%E8%AE%B0%E4%B8%80%E6%AC%A1RabbitMQ%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%A7%A3%E5%86%B3%E7%BB%8F%E5%8E%86/img.png">
+<meta property="og:image" content="https://ahcit.github.io/2024/05/20/%E8%AE%B0%E4%B8%80%E6%AC%A1RabbitMQ%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%A7%A3%E5%86%B3%E7%BB%8F%E5%8E%86/img_1.png">
 <meta property="og:image" content="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e1862f3855ba46689c673b071f0023d8~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=2629&h=237&s=309253&e=png&b=1f2223">
 <meta property="article:published_time" content="2024-05-19T17:58:22.000Z">
-<meta property="article:modified_time" content="2024-11-24T10:02:54.429Z">
+<meta property="article:modified_time" content="2025-03-29T06:39:54.427Z">
 <meta property="article:author" content="行舟">
 <meta property="article:tag" content="连接池">
 <meta property="article:tag" content="InfluxDB">
 <meta property="article:tag" content="生产问题">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ee8718433af842eba25f86db07b61511~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3562&h=1603&s=1498419&e=png&b=222126">
+<meta name="twitter:image" content="https://ahcit.github.io/2024/05/20/%E8%AE%B0%E4%B8%80%E6%AC%A1RabbitMQ%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%A7%A3%E5%86%B3%E7%BB%8F%E5%8E%86/img.png">
   
   
   
@@ -308,8 +308,11 @@
                 <h1 id="记一次RabbitMQ消息堆积问题排查与解决经历"><a href="#记一次RabbitMQ消息堆积问题排查与解决经历" class="headerlink" title="记一次RabbitMQ消息堆积问题排查与解决经历"></a>记一次RabbitMQ消息堆积问题排查与解决经历</h1><p>今天想和大家聊一下，最近线上遇到的一个问题。这个问题是隔壁团队爆出来的，由于我跟他们组长关系还不错，就一起帮着看一下了，没想到一看还真让我找到了。最后发现原因其实不复杂，主要是排查过程上可能走了一些弯路。为了保护公司隐私，我会在后续的描述中把业务上的内容先屏蔽掉。</p>
 <h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>近期，公司对接了一个大客户，该客户会向我们平台RabbitMQ发送相关的硬件数据。平台针对这类硬件数据，采用了InfluxDB来进行存储，以往都没有出现过问题。但是在对接该客户的数据后，RabbitMQ堵了。当时隔壁组的第一反应是去查看消费者的执行逻辑，看一下是否存在需要优化的点。事实是当时的消费者逻辑确实也存在问题，他们优化了一版之后，立刻进行了上线。然而消息堆积的现象依然会出现，最后没有办法，只能定时重启InfluxDB。其实到这里大家肯定猜到是InfluxDB的问题了，但实际上却不能说完全是InfluxDB的问题。</p>
 <h2 id="原因排查"><a href="#原因排查" class="headerlink" title="原因排查"></a>原因排查</h2><p>循着背景我继续往下说，产生消息堆积的直接原因肯定是消费者处理速度跟不上。那么造成处理速度缓慢的原因又是什么呢？首先我想到的是消费者内部的处理逻辑存在长耗时的操作，但是排查下来都很正常。那显然不是程序逻辑的问题了。接着肯定是要排查中间件的问题了，我问了下隔壁组，他们说InfluxDB的CPU、IO占用都很正常。到这里就有点奇怪了，但是本着怀疑的精神我还是去看了他们组的InfluxDB监控，确实如他们所说，CPU、IO都没到瓶颈。但是我却发现了大量的Client Error，这表明有大量的客户端在请求连接InfluxDB的时候失败了。联想到RabbitMQ消息堆积的现象，我初步判断，应该是RabbitMQ消息产生的速度过快，导致消费者一直要去连接InfluxDB发送处理后的数据，最终导致InfluxDB连接耗尽，后续的消费者线程无法再与InfluxDB发起连接。</p>
-<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ee8718433af842eba25f86db07b61511~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3562&h=1603&s=1498419&e=png&b=222126" srcset="/img/loading.gif" lazyload alt="image.png"><br>接着我去看了RabbitMQ那边的情况，有几个队列会周期性的发送大量消息，这个数量下确实会导致消费者频繁地申请InfluxDB连接。可能有的朋友会说，难道你们没有使用连接池吗？我去查了下源码，它还真没有用【手动捂脸】。这个消费者服务引用的InfluxDB组件是GitHub上的一个<a target="_blank" rel="noopener" href="https://github.com/miwurster/spring-data-influxdb">开源项目</a> 有好多年没更新了。在读写数据过程中全是直接申请InfluxDB连接的，这种操作，在并发不高的情形下估计还能撑住，一旦并发量上来了，InfluxDB必然不可用了，就这消息不堆积都有鬼了。另外我发现，这个InfluxDB的配置项里面最大连接数设置的是100，我看着CPU和IO的数据，陷入了沉思(emmmm…)</p>
-<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/827b336fc0cb44d08a0086037545234f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3775&h=1212&s=159252&e=png&b=222225" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<img src="/2024/05/20/%E8%AE%B0%E4%B8%80%E6%AC%A1RabbitMQ%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%A7%A3%E5%86%B3%E7%BB%8F%E5%8E%86/img.png" srcset="/img/loading.gif" lazyload class="" title="influxdb监控图">
+
+<p>接着我去看了RabbitMQ那边的情况，有几个队列会周期性的发送大量消息，这个数量下确实会导致消费者频繁地申请InfluxDB连接。可能有的朋友会说，难道你们没有使用连接池吗？我去查了下源码，它还真没有用【手动捂脸】。这个消费者服务引用的InfluxDB组件是GitHub上的一个<a target="_blank" rel="noopener" href="https://github.com/miwurster/spring-data-influxdb">开源项目</a> 有好多年没更新了。在读写数据过程中全是直接申请InfluxDB连接的，这种操作，在并发不高的情形下估计还能撑住，一旦并发量上来了，InfluxDB必然不可用了，就这消息不堆积都有鬼了。另外我发现，这个InfluxDB的配置项里面最大连接数设置的是100，我看着CPU和IO的数据，陷入了沉思(emmmm…)</p>
+<img src="/2024/05/20/%E8%AE%B0%E4%B8%80%E6%AC%A1RabbitMQ%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E4%B8%8E%E8%A7%A3%E5%86%B3%E7%BB%8F%E5%8E%86/img_1.png" srcset="/img/loading.gif" lazyload class="" title="队列堆积图">
+
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>通过上面的原因分析知道，问题产生的根本原因就是没有对数据库连接数做控制。那解决的方案就是加个连接池呗，然后说到连接池这玩意儿，我之前是真没自己实现过。本着求真务实的态度，怎么着也得试试。</p>
 <h3 id="连接池原理"><a href="#连接池原理" class="headerlink" title="连接池原理"></a>连接池原理</h3><p>在说连接池以前先说一下对象池。众所周知，Java是一门面向对象的语言，JVM中每时每刻都在创造着新的对象。这其中有一些对象其实没有必要一直重复创建销毁的过程。过日子就得讲究一个精打细算嘛，能重复利用咱就别折腾了。这部分对象给他分配个池子，让它们泡着就行。谁要用拿去用就是，用完记得还回来就行。连接池的原理其实也是这样，我们可以定义好一组数据库连接对象实例，由需要发起数据库连接的线程自己去借用，然后完成对应的数据库操作，这样的话，无论有多少线程需要发起数据库连接，他们能创建的数据库连接的上限都不会超多连接池指定的上限。关于线程等待的问题，就涉及到连接池参数调优的问题了，这里就不讨论了。</p>
 <h3 id="基于连接池重写InfluxDB连接组件"><a href="#基于连接池重写InfluxDB连接组件" class="headerlink" title="基于连接池重写InfluxDB连接组件"></a>基于连接池重写<code>InfluxDB</code>连接组件</h3><p>连接池的实现我们可以借助Apache Commons Pool来完成。它主要由几个关键接口和类组成。最核心的是<code>ObjectPool</code>接口，它定义了对象池的基本操作，例如借用对象(<code>borrowObject</code>)、返还对象(<code>returnObject</code>)等。然后是<code>PooledObjectFactory</code>接口，这是一个用于创建和管理池对象生命周期的工厂接口。通常，当我们需要将自定义的对象放入对象池时，就需要实现这个接口。说干就干，代码走起</p>
