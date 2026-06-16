@@ -16,22 +16,23 @@
   <meta name="author" content="行舟">
   <meta name="keywords" content="">
   
-    <meta name="description" content="LeetCode 86.  分隔链表 给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前。 你应当 保留 两个分区中每个节点的初始相对位置。 **分析：**本题的关键点有两个   使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前 这句话读起来很绕口，但是本质上表达的意义就是在遍历单链表的过程把小于x的">
+    <meta name="description" content="1. 演进总览 智能体发展遵循&quot;问题驱动&quot;的迭代逻辑：每一个新范式的出现，都是为了解决上一代范式的核心痛点，而新方案在带来能力飞跃的同时，也引入新的局限，为下一代范式埋下伏笔。  核心演进路径：符号主义 → 分布式智能 → 联结主义 → 强化学习 → 预训练 → LLM 智能体   2. 符号主义时代 2.1 物理符号系统假说（PSSH） 1976 年由纽厄尔和西蒙提出，是符号">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LeetCode 86. 分割链表">
-<meta property="og:url" content="https://ahcit.github.io/2023/02/20/LeetCode-86-%E5%88%86%E5%89%B2%E9%93%BE%E8%A1%A8/index.html">
+<meta property="og:title" content="智能体发展史">
+<meta property="og:url" content="https://ahcit.github.io/2026/06/16/%E6%99%BA%E8%83%BD%E4%BD%93%E5%8F%91%E5%B1%95%E5%8F%B2/index.html">
 <meta property="og:site_name" content="行舟">
-<meta property="og:description" content="LeetCode 86.  分隔链表 给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前。 你应当 保留 两个分区中每个节点的初始相对位置。 **分析：**本题的关键点有两个   使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前 这句话读起来很绕口，但是本质上表达的意义就是在遍历单链表的过程把小于x的">
+<meta property="og:description" content="1. 演进总览 智能体发展遵循&quot;问题驱动&quot;的迭代逻辑：每一个新范式的出现，都是为了解决上一代范式的核心痛点，而新方案在带来能力飞跃的同时，也引入新的局限，为下一代范式埋下伏笔。  核心演进路径：符号主义 → 分布式智能 → 联结主义 → 强化学习 → 预训练 → LLM 智能体   2. 符号主义时代 2.1 物理符号系统假说（PSSH） 1976 年由纽厄尔和西蒙提出，是符号">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-02-19T16:29:55.000Z">
-<meta property="article:modified_time" content="2023-02-19T08:33:03.065Z">
+<meta property="article:published_time" content="2026-06-16T14:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-16T06:58:25.628Z">
 <meta property="article:author" content="行舟">
-<meta property="article:tag" content="链表">
+<meta property="article:tag" content="智能体">
+<meta property="article:tag" content="发展史">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>LeetCode 86. 分割链表 - 行舟</title>
+  <title>智能体发展史 - 行舟</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +215,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="LeetCode 86. 分割链表"></span>
+            <span id="subtitle" data-typed-text="智能体发展史"></span>
           
         </div>
 
@@ -225,8 +226,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-02-19 16:29" pubdate>
-          2023年2月19日 下午
+        <time datetime="2026-06-16 14:00" pubdate>
+          2026年6月16日 下午
         </time>
       </span>
     
@@ -237,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          2.6k 字
         
       </span>
     
@@ -248,7 +249,7 @@
         
         
         
-          9 分钟
+          22 分钟
         
       </span>
     
@@ -294,26 +295,341 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">LeetCode 86. 分割链表</h1>
+            <h1 style="display: none">智能体发展史</h1>
             
             
               <div class="markdown-body">
                 
-                <h3 id="LeetCode-86-分隔链表">LeetCode 86.  <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/partition-list/description/?orderBy=hot">分隔链表</a></h3>
-<p>给你一个链表的头节点 <code>head</code> 和一个特定值 <code>x</code> ，请你对链表进行分隔，使得所有 <strong>小于</strong> <code>x</code> 的节点都出现在 <strong>大于或等于</strong> <code>x</code> 的节点之前。</p>
-<p>你应当 <strong>保留</strong> 两个分区中每个节点的初始相对位置。</p>
-<p>**分析：**本题的关键点有两个</p>
+                <h2 id="1-演进总览">1. 演进总览</h2>
+<p>智能体发展遵循&quot;<strong>问题驱动</strong>&quot;的迭代逻辑：每一个新范式的出现，都是为了解决上一代范式的核心痛点，而新方案在带来能力飞跃的同时，也引入新的局限，为下一代范式埋下伏笔。</p>
+<blockquote>
+<p>核心演进路径：<strong>符号主义 → 分布式智能 → 联结主义 → 强化学习 → 预训练 → LLM 智能体</strong></p>
+</blockquote>
+<hr>
+<h2 id="2-符号主义时代">2. 符号主义时代</h2>
+<h3 id="2-1-物理符号系统假说（PSSH）">2.1 物理符号系统假说（PSSH）</h3>
+<p>1976 年由纽厄尔和西蒙提出，是符号主义的理论基石：</p>
+<ul>
+<li><strong>充分性论断</strong>：任何物理符号系统都具备产生通用智能的充分手段</li>
+<li><strong>必要性论断</strong>：任何展现通用智能的系统，本质必然是物理符号系统</li>
+</ul>
+<blockquote>
+<p>核心信念：<strong>智能的本质就是符号的计算与处理</strong>。</p>
+</blockquote>
+<h3 id="2-2-专家系统">2.2 专家系统</h3>
+<p>核心目标：模拟人类专家在特定领域解决问题的能力。</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识库</td>
+<td>存放领域知识，常用&quot;IF-THEN&quot;产生式规则表示</td>
+</tr>
+<tr>
+<td>推理机</td>
+<td>通用推理程序，支持正向链（数据驱动）和反向链（目标驱动）</td>
+</tr>
+<tr>
+<td>用户界面</td>
+<td>人机交互接口</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MYCIN 系统</strong>（1970s，斯坦福）：</p>
+<ul>
+<li>辅助诊断细菌性血液感染，约 600 条规则</li>
+<li>创新：引入**置信因子（CF）**处理不确定性</li>
+<li>表现超过非专业医生，达到专家水平</li>
+</ul>
+<h3 id="2-3-SHRDLU（1968-1970）">2.3 SHRDLU（1968-1970）</h3>
+<p>在&quot;积木世界&quot;中通过自然语言交互的综合性智能体：</p>
+<ul>
+<li><strong>自然语言理解</strong>：处理复杂指令、指代消解、上下文记忆</li>
+<li><strong>规划与行动</strong>：自主规划动作序列（如先移开障碍物再放积木）</li>
+<li><strong>记忆与问答</strong>：可回答世界状态、行为历史、行为动机</li>
+</ul>
+<blockquote>
+<p>历史意义：首次将语言理解、推理规划、行动记忆集成于统一系统，奠定了&quot;感知-思考-行动&quot;闭环的基础。</p>
+</blockquote>
+<h3 id="2-4-符号主义的根本性挑战">2.4 符号主义的根本性挑战</h3>
+<table>
+<thead>
+<tr>
+<th>挑战</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>知识获取瓶颈</strong></td>
+<td>手工编码知识成本高、难规模化，隐性知识难以表达</td>
+</tr>
+<tr>
+<td><strong>常识问题</strong></td>
+<td>庞大常识背景无法穷举编码</td>
+</tr>
+<tr>
+<td><strong>框架问题</strong></td>
+<td>动态世界中高效判断不变状态的计算难题</td>
+</tr>
+<tr>
+<td><strong>系统脆弱性</strong></td>
+<td>规则之外的微小变化即导致系统失灵</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-基于规则的聊天机器人：ELIZA">3. 基于规则的聊天机器人：ELIZA</h2>
+<h3 id="3-1-设计思想">3.1 设计思想</h3>
+<p>1966 年魏泽鲍姆开发，模仿罗杰斯学派心理治疗师。核心技巧：<strong>从不正面回答，而是通过关键词匹配 + 规则转换，将陈述变为开放式提问</strong>。</p>
+<h3 id="3-2-算法流程">3.2 算法流程</h3>
 <ol>
-<li>
-<p>使得所有 <strong>小于</strong> <code>x</code> 的节点都出现在 <strong>大于或等于</strong> <code>x</code> 的节点之前</p>
-<p>这句话读起来很绕口，但是本质上表达的意义就是在遍历单链表的过程把小于x的结点放到左边，把大于或等于x的结点放到右边</p>
-</li>
-<li>
-<p>有了1的说明，编码实现已经是手到擒来的事情了，但在实现的过程中需要考虑将遍历到的结点置为孤结点。</p>
-<p>**解释：**假设以p结点作为遍历结点，当我们确定p属于左边还是右边以后，需要切断了p的后续结点，使之成为一个孤结点。如果不使p为成为一个孤节点，则相当于将以p为首的单链表加到了p1或者p2后面，这不是我们想要的。</p>
-</li>
+<li><strong>关键词识别与排序</strong>：按优先级匹配关键词</li>
+<li><strong>分解规则</strong>：用通配符捕获句子其余部分</li>
+<li><strong>重组规则</strong>：随机选择模板生成回应</li>
+<li><strong>代词转换</strong>：I→you, my→your 等</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Definition for singly-linked list.</span><br><span class="hljs-comment"> * public class ListNode &#123;</span><br><span class="hljs-comment"> *     int val;</span><br><span class="hljs-comment"> *     ListNode next;</span><br><span class="hljs-comment"> *     ListNode() &#123;&#125;</span><br><span class="hljs-comment"> *     ListNode(int val) &#123; this.val = val; &#125;</span><br><span class="hljs-comment"> *     ListNode(int val, ListNode next) &#123; this.val = val; this.next = next; &#125;</span><br><span class="hljs-comment"> * &#125;</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-keyword">public</span> ListNode <span class="hljs-title function_">partition</span><span class="hljs-params">(ListNode head, <span class="hljs-type">int</span> x)</span> &#123;<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">dummy1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListNode</span>(-<span class="hljs-number">1</span>);<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">dummy2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListNode</span>(-<span class="hljs-number">2</span>);<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> head;<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">p1</span> <span class="hljs-operator">=</span> dummy1;<br>        <span class="hljs-type">ListNode</span> <span class="hljs-variable">p2</span> <span class="hljs-operator">=</span> dummy2;<br>        <span class="hljs-keyword">while</span>(p != <span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-keyword">if</span>(p.val &lt; x)&#123;<br>                p1.next = p;<br>                p1 = p1.next;<br>            &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(p.val &gt;= x)&#123;<br>                p2.next = p;<br>                p2 = p2.next;<br>            &#125;<br>            <span class="hljs-comment">// 保存以p.next为首的链表</span><br>            <span class="hljs-type">ListNode</span> <span class="hljs-variable">temp</span> <span class="hljs-operator">=</span> p.next;<br>            <span class="hljs-comment">// 切断p的后续结点，使p成为了一个孤节点</span><br>            p.next = <span class="hljs-literal">null</span>;<br>            <span class="hljs-comment">// 更新p的位置</span><br>            p = temp;<br>        &#125;<br>        p1.next = dummy2.next;<br>        <span class="hljs-keyword">return</span> dummy1.next;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="3-3-根本局限">3.3 根本局限</h3>
+<ul>
+<li><strong>缺乏语义理解</strong>：不理解否定词等语义，机械匹配</li>
+<li><strong>无上下文记忆</strong>：无状态，每次仅基于当前单句</li>
+<li><strong>规则扩展性问题</strong>：规则爆炸式增长，冲突管理复杂</li>
+</ul>
+<blockquote>
+<p><strong>ELIZA 效应</strong>：用户因情感投射而相信机器理解自己，揭示了符号主义的<strong>核心矛盾</strong>——看似智能的表现完全依赖预设规则，没有真正的理解。</p>
+</blockquote>
+<hr>
+<h2 id="4-马文·明斯基的-心智社会">4. 马文·明斯基的&quot;心智社会&quot;</h2>
+<h3 id="4-1-核心思想">4.1 核心思想</h3>
+<blockquote>
+<p>“智能的力量源于我们巨大的多样性，而非任何单一的完美原则。”</p>
+</blockquote>
+<p>对单一整体智能模型的反思：智能不是金字塔式的层级结构，而是<strong>扁平化、充满互动与协作的&quot;社会&quot;</strong>。</p>
+<h3 id="4-2-关键概念">4.2 关键概念</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>智能体（Agent）</strong></td>
+<td>极其简单的、专门化的心智过程，自身&quot;无心&quot;（如 LINE-FINDER）</td>
+</tr>
+<tr>
+<td><strong>机构（Agency）</strong></td>
+<td>一组协同工作的智能体，完成更复杂任务</td>
+</tr>
+<tr>
+<td><strong>涌现（Emergence）</strong></td>
+<td>复杂智能行为从简单局部交互中自发产生</td>
+</tr>
+</tbody>
+</table>
+<p><strong>搭积木塔示例</strong>：BUILD-TOWER → BUILDER → ADD-BLOCK → FIND-BLOCK/GET-BLOCK/PUT-ON-TOP → SEE-SHAPE/REACH/GRASP。没有任何智能体拥有全局规划，但协作涌现出智能行为。</p>
+<h3 id="4-3-对多智能体系统的启发">4.3 对多智能体系统的启发</h3>
+<ul>
+<li><strong>去中心化控制</strong>：无中央控制器，协调机制成为核心课题</li>
+<li><strong>涌现式计算</strong>：蚁群算法、粒子群优化等</li>
+<li><strong>智能体的社会性</strong>：通信语言、交互协议、协商策略、信任模型</li>
+</ul>
+<hr>
+<h2 id="5-学习范式的演进">5. 学习范式的演进</h2>
+<h3 id="5-1-联结主义（Connectionism）">5.1 联结主义（Connectionism）</h3>
+<p>自下而上的方法，灵感源于大脑神经网络：</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>符号主义</th>
+<th>联结主义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识表示</td>
+<td>显式符号规则</td>
+<td>分布式连接权重</td>
+</tr>
+<tr>
+<td>获取方式</td>
+<td>手工编码</td>
+<td>从数据中学习</td>
+</tr>
+<tr>
+<td>核心机制</td>
+<td>逻辑推理</td>
+<td>反向传播调整权重</td>
+</tr>
+<tr>
+<td>优势</td>
+<td>可解释</td>
+<td>模式识别、鲁棒</td>
+</tr>
+<tr>
+<td>劣势</td>
+<td>脆弱、知识瓶颈</td>
+<td>黑箱、不可解释</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-2-强化学习（RL）">5.2 强化学习（RL）</h3>
+<p>专注于<strong>序贯决策</strong>问题的学习范式，通过&quot;试错&quot;学习最大化长期收益。</p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>智能体</td>
+<td>学习者和决策者</td>
+</tr>
+<tr>
+<td>环境</td>
+<td>智能体交互的对象</td>
+</tr>
+<tr>
+<td>状态（S）</td>
+<td>环境在某一时刻的描述</td>
+</tr>
+<tr>
+<td>行动（A）</td>
+<td>智能体可采取的操作</td>
+</tr>
+<tr>
+<td>奖励（R）</td>
+<td>环境反馈的标量评价信号</td>
+</tr>
+<tr>
+<td>策略（π）</td>
+<td>从状态到行动的映射</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>学习目标：最大化<strong>累积奖励（回报）</strong>，而非即时奖励。</p>
+</blockquote>
+<p><strong>AlphaGo</strong>：通过数百万次自我对弈，从胜负结果中学习最优落子策略，不依赖人类棋谱。</p>
+<h3 id="5-3-预训练-微调范式">5.3 预训练-微调范式</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>预训练</strong></td>
+<td>在海量通用文本上通过自监督学习（预测下一个词）训练模型</td>
+</tr>
+<tr>
+<td><strong>微调</strong></td>
+<td>用少量特定任务标注数据适配下游任务</td>
+</tr>
+</tbody>
+</table>
+<p><strong>涌现能力</strong>（模型规模跨越阈值后出现）：</p>
+<ul>
+<li><strong>上下文学习</strong>：Few-shot/Zero-shot 完成新任务，无需调整权重</li>
+<li><strong>思维链推理</strong>：输出逐步推理过程，显著提升复杂推理准确性</li>
+</ul>
+<blockquote>
+<p>LLM 不再仅仅是语言模型，而是兼具<strong>海量知识库</strong>和<strong>通用推理引擎</strong>双重角色的组件。</p>
+</blockquote>
+<h3 id="5-4-LLM-驱动的现代智能体">5.4 LLM 驱动的现代智能体</h3>
+<p>核心组件架构：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>感知模块</td>
+<td>从环境接收输入，形成观察</td>
+</tr>
+<tr>
+<td>规划模块</td>
+<td>反思、自我批判，分解宏观目标</td>
+</tr>
+<tr>
+<td>LLM</td>
+<td>深度推理，决策工具调用</td>
+</tr>
+<tr>
+<td>记忆模块</td>
+<td>整合历史信息</td>
+</tr>
+<tr>
+<td>执行模块</td>
+<td>解析指令，调用工具</td>
+</tr>
+<tr>
+<td>工具箱</td>
+<td>代码执行器、搜索引擎、API 等</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-三大思潮与融合">6. 三大思潮与融合</h2>
+<table>
+<thead>
+<tr>
+<th>思潮</th>
+<th>代表</th>
+<th>核心思想</th>
+<th>里程碑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>符号主义</strong></td>
+<td>西蒙、明斯基</td>
+<td>符号操作与逻辑推理</td>
+<td>SHRDLU、专家系统、深蓝</td>
+</tr>
+<tr>
+<td><strong>联结主义</strong></td>
+<td>辛顿</td>
+<td>神经网络模拟大脑</td>
+<td>反向传播、CNN、Transformer</td>
+</tr>
+<tr>
+<td><strong>行为主义</strong></td>
+<td>—</td>
+<td>与环境互动试错学习</td>
+<td>TD-Gammon、AlphaGo</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>21 世纪 20 年代：三大思潮深度融合。LLM（联结主义产物）成为执行符号推理、工具调用和规划决策的&quot;大脑&quot;，形成<strong>神经-符号结合</strong>的现代智能体架构。</p>
+</blockquote>
+<hr>
+<h2 id="7-本章要点总结">7. 本章要点总结</h2>
+<ol>
+<li>符号主义以 PSSH 为理论基石，专家系统和 SHRDLU 是其典型成果</li>
+<li>符号主义面临知识获取瓶颈、常识问题、框架问题、系统脆弱性四大挑战</li>
+<li>ELIZA 揭示了规则驱动系统的核心矛盾：看似智能，实则无理解</li>
+<li>&quot;心智社会&quot;理论提出智能从简单智能体的协作中涌现，启发了多智能体系统</li>
+<li>联结主义用分布式权重替代显式规则，赋予智能体从数据中学习的能力</li>
+<li>强化学习通过&quot;试错&quot;让智能体学会序贯决策</li>
+<li>预训练-微调范式解决了知识获取瓶颈，LLM 展现出涌现能力</li>
+<li>现代 LLM 智能体是符号主义、联结主义、行为主义三大思潮的深度融合</li>
+</ol>
 
                 
               </div>
@@ -332,7 +648,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/LeetCode/" class="category-chain-item">LeetCode</a>
+  <a href="/categories/Agent/" class="category-chain-item">Agent</a>
   
   
 
@@ -347,7 +663,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E9%93%BE%E8%A1%A8/">#链表</a>
+        <a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/">#智能体</a>
+      
+        <a href="/tags/%E5%8F%91%E5%B1%95%E5%8F%B2/">#发展史</a>
       
     </div>
   
@@ -359,8 +677,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>LeetCode 86. 分割链表</div>
-      <div>https://ahcit.github.io/2023/02/20/LeetCode-86-分割链表/</div>
+      <div>智能体发展史</div>
+      <div>https://ahcit.github.io/2026/06/16/智能体发展史/</div>
     </div>
     <div class="license-meta">
       
@@ -372,7 +690,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年2月19日</div>
+          <div>2026年6月16日</div>
         </div>
       
       
@@ -404,9 +722,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/02/20/LeetCode-23-%E5%90%88%E5%B9%B6K%E4%B8%AA%E5%8D%87%E5%BA%8F%E9%93%BE%E8%A1%A8/" title="LeetCode 23. 合并K个升序链表">
+                      <a href="/2026/06/16/%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/" title="大语言模型基础">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">LeetCode 23. 合并K个升序链表</span>
+                        <span class="hidden-mobile">大语言模型基础</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -414,8 +732,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/02/19/%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8/" title="LeetCode 21. 合并两个有序链表">
-                        <span class="hidden-mobile">LeetCode 21. 合并两个有序链表</span>
+                      <a href="/2026/06/16/%E5%88%9D%E8%AF%86%E6%99%BA%E8%83%BD%E4%BD%93/" title="初识智能体">
+                        <span class="hidden-mobile">初识智能体</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
