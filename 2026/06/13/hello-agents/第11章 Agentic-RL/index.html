@@ -1,0 +1,916 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="行舟">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 本章目标 强化学习解决序贯决策问题：智能体与环境交互，通过试错学习最大化长期收益。 在 LLM 智能体中，可映射为：  智能体：基于 LLM 的推理与行动系统。 环境：问题、工具、验证器、外部世界。 状态：当前问题、历史观察、已有推理步骤。 行动：生成文本、调用工具、执行操作。 奖励：答案正确性、工具调用成功、任务完成度等。  Agentic RL 的核心是把 LLM 当作可学习策略，嵌入“">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第11章 Agentic-RL">
+<meta property="og:url" content="https://ahcit.github.io/2026/06/13/hello-agents/%E7%AC%AC11%E7%AB%A0%20Agentic-RL/index.html">
+<meta property="og:site_name" content="行舟">
+<meta property="og:description" content="1. 本章目标 强化学习解决序贯决策问题：智能体与环境交互，通过试错学习最大化长期收益。 在 LLM 智能体中，可映射为：  智能体：基于 LLM 的推理与行动系统。 环境：问题、工具、验证器、外部世界。 状态：当前问题、历史观察、已有推理步骤。 行动：生成文本、调用工具、执行操作。 奖励：答案正确性、工具调用成功、任务完成度等。  Agentic RL 的核心是把 LLM 当作可学习策略，嵌入“">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-17T01:35:46.103Z">
+<meta property="article:author" content="行舟">
+<meta property="article:tag" content="HelloAgents">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="Agentic RL">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>第11章 Agentic-RL - 行舟</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ahcit.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"yoLmWK0iNdcEMARAqNnAccsm-gzGzoHsz","app_key":"AqZlDi7H00mT33OT16ur41MG","server_url":"https://yolmwk0i.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>行舟</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="第11章 Agentic-RL"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-13 16:00" pubdate>
+          2026年6月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          7 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">第11章 Agentic-RL</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-本章目标">1. 本章目标</h2>
+<p>强化学习解决序贯决策问题：智能体与环境交互，通过试错学习最大化长期收益。</p>
+<p>在 LLM 智能体中，可映射为：</p>
+<ul>
+<li><strong>智能体</strong>：基于 LLM 的推理与行动系统。</li>
+<li><strong>环境</strong>：问题、工具、验证器、外部世界。</li>
+<li><strong>状态</strong>：当前问题、历史观察、已有推理步骤。</li>
+<li><strong>行动</strong>：生成文本、调用工具、执行操作。</li>
+<li><strong>奖励</strong>：答案正确性、工具调用成功、任务完成度等。</li>
+</ul>
+<p>Agentic RL 的核心是把 LLM 当作可学习策略，嵌入“感知—决策—执行”循环，通过反馈优化复杂任务表现。</p>
+<h2 id="2-LLM-训练全景">2. LLM 训练全景</h2>
+<p>LLM 通常经历预训练和后训练。</p>
+<h3 id="预训练">预训练</h3>
+<p>预训练使用海量文本进行自监督学习，目标是下一个 token 预测：</p>
+<p>$$<br>
+\mathcal{L}<em>{\text{pretrain}} = -\sum</em>{t=1}^{T} \log P(x_t | x_1, x_2, …, x_{t-1}; \theta)<br>
+$$</p>
+<p>它让模型学习语言规律、语义知识、世界知识和基础推理能力。</p>
+<h3 id="后训练">后训练</h3>
+<p>后训练让模型更符合人类指令和偏好，通常包括三步。</p>
+<p><strong>SFT 监督微调</strong>：学习指令格式和任务输出。</p>
+<p>$$<br>
+\mathcal{L}<em>{\text{SFT}} = -\sum</em>{i=1}^{N} \log P(y_i | x_i; \theta)<br>
+$$</p>
+<p><strong>奖励建模</strong>：用偏好数据训练奖励模型。</p>
+<p>$$<br>
+\mathcal{L}<em>{\text{RM}} = -\mathbb{E}</em>{(x, y_w, y_l)} [\log \sigma(r_\phi(x, y_w) - r_\phi(x, y_l))]<br>
+$$</p>
+<p><strong>RL 微调</strong>：最大化奖励，同时控制模型不偏离参考模型太远。</p>
+<p>$$<br>
+J_{\text{PPO}} = \mathbb{E}<em>{x, y \sim \pi</em>\theta} [r_\phi(x, y)] - \beta \cdot D_{KL}(\pi_\theta || \pi_{\text{ref}})<br>
+$$</p>
+<h2 id="3-PBRFT-与-Agentic-RL">3. PBRFT 与 Agentic RL</h2>
+<p>传统偏好强化微调更关注单轮回答质量，而 Agentic RL 关注复杂任务完成过程。</p>
+<p>PBRFT 的状态通常只是用户 prompt，行动是一次文本生成，奖励是回答质量：</p>
+<p>$$<br>
+J_{\text{PBRFT}}(\theta) = \mathbb{E}<em>{s_0, y \sim \pi</em>\theta} [r(s_0, y)]<br>
+$$</p>
+<p>Agentic RL 的状态包含任务、历史观察、工具结果和上下文，行动包括文本生成、工具调用和环境操作，奖励可来自中间步骤与最终结果：</p>
+<p>$$<br>
+R_{\text{Agentic}} = \sum_{t=0}^{T} \gamma^t r(s_t, a_t)<br>
+$$</p>
+<p>目标函数为：</p>
+<p>$$<br>
+J_{\text{Agentic}}(\theta) = \mathbb{E}<em>{\tau \sim \pi</em>\theta} \left[\sum_{t=0}^{T} \gamma^t r(s_t, a_t)\right]<br>
+$$</p>
+<h2 id="4-Agentic-RL-要提升的能力">4. Agentic RL 要提升的能力</h2>
+<ol>
+<li><strong>推理</strong>：学习更有效的推理路径。</li>
+<li><strong>工具使用</strong>：学会何时用工具、选哪个工具、如何传参。</li>
+<li><strong>记忆管理</strong>：学会什么值得记、何时检索、何时遗忘。</li>
+<li><strong>规划</strong>：学会多步行动序列和长期收益权衡。</li>
+<li><strong>自我改进</strong>：识别错误、反思失败并调整策略。</li>
+<li><strong>感知</strong>：提升多模态理解和视觉推理能力。</li>
+</ol>
+<h2 id="5-HelloAgents-的-RL-架构">5. HelloAgents 的 RL 架构</h2>
+<p>HelloAgents 集成 TRL，示例模型选择 Qwen3-0.6B，整体分为四层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">统一接口层：RLTrainingTool<br>训练器层：SFTTrainerWrapper、GRPOTrainerWrapper<br>奖励函数层：AccuracyReward、LengthPenaltyReward、StepReward<br>数据集层：GSM8KDataset、create_sft_dataset、create_rl_dataset<br></code></pre></td></tr></table></figure>
+<p><code>RLTrainingTool</code> 支持训练、加载数据集、创建奖励函数和评估模型。</p>
+<h2 id="6-GSM8K-数据集">6. GSM8K 数据集</h2>
+<p>GSM8K 是小学数学应用题数据集，适合训练数学推理。它答案明确、可自动评估，并且需要多步推理。</p>
+<p>数据会转换为两种格式：</p>
+<ul>
+<li><strong>SFT 格式</strong>：包含完整解题过程，训练模型学习格式和基础推理。</li>
+<li><strong>RL 格式</strong>：只提供问题和最终答案，模型需要自己生成推理过程并根据奖励优化。</li>
+</ul>
+<h2 id="7-奖励函数设计">7. 奖励函数设计</h2>
+<p>奖励函数定义什么是“好行为”。数学推理中可写为：</p>
+<p>$$<br>
+r(q, a) = f(a, a^*)<br>
+$$</p>
+<p>其中 $q$ 是问题，$a$ 是预测答案，$a^*$ 是标准答案。</p>
+<h3 id="准确率奖励">准确率奖励</h3>
+<p>$$<br>
+r_{\text{acc}}(a, a^<em>) = \begin{cases}<br>
+1 &amp; \text{if } a = a^</em> \\<br>
+0 &amp; \text{otherwise}<br>
+\end{cases}<br>
+$$</p>
+<p>优点是简单可靠，缺点是奖励稀疏。</p>
+<h3 id="长度惩罚">长度惩罚</h3>
+<p>$$<br>
+r_{\text{length}}(a, a^<em>, l) = r_{\text{acc}}(a, a^</em>) - \alpha \cdot \max(0, l - l_{\text{target}})<br>
+$$</p>
+<p>用于鼓励简洁表达、控制 token 成本。</p>
+<h3 id="步骤奖励">步骤奖励</h3>
+<p>$$<br>
+r_{\text{step}}(a, a^<em>, s) = r_{\text{acc}}(a, a^</em>) + \beta \cdot s<br>
+$$</p>
+<p>用于鼓励清晰推理步骤，但要避免模型生成冗余步骤。</p>
+<p>组合奖励常写为：</p>
+<p>$$<br>
+r = r_{\text{acc}} - \alpha \cdot \max(0, l - l_{\text{target}}) + \beta \cdot s<br>
+$$</p>
+<h2 id="8-SFT、LoRA-与-GRPO">8. SFT、LoRA 与 GRPO</h2>
+<p><strong>SFT</strong> 是强化学习前的重要准备，让模型先学会输出格式、分步推理和最终答案标记。</p>
+<p><strong>LoRA</strong> 冻结原模型参数，只训练低秩矩阵。若原权重为 $W$，微调变化为：</p>
+<p>$$<br>
+\Delta W = BA<br>
+$$</p>
+<p>前向传播为：</p>
+<p>$$<br>
+h = Wx + \Delta Wx = Wx + BAx<br>
+$$</p>
+<p>LoRA 显存占用低、训练快，适合普通 GPU。</p>
+<p><strong>GRPO</strong> 通过同一问题生成多个候选答案，在组内比较相对优劣，适合数学推理等可自动验证任务。</p>
+<h2 id="9-本章重点">9. 本章重点</h2>
+<ul>
+<li>Agentic RL 将训练目标从单轮回答扩展到多步任务策略。</li>
+<li>SFT 是 RL 前的基础阶段。</li>
+<li>奖励函数决定模型学习方向。</li>
+<li>GSM8K 适合训练和评估数学推理。</li>
+<li>LoRA 降低训练成本。</li>
+<li>GRPO 适合自动评估场景下的相对策略优化。</li>
+</ul>
+<h2 id="10-小结">10. 小结</h2>
+<p>第十一章让 HelloAgents 具备训练能力。通过 SFT、奖励函数、LoRA 和 GRPO，智能体可以从“按提示执行”走向“通过反馈学习更优策略”。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Agent/" class="category-chain-item">Agent</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/HelloAgents/">#HelloAgents</a>
+      
+        <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/">#强化学习</a>
+      
+        <a href="/tags/Agentic-RL/">#Agentic RL</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>第11章 Agentic-RL</div>
+      <div>https://ahcit.github.io/2026/06/13/hello-agents/第11章 Agentic-RL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>行舟</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/13/hello-agents/%E7%AC%AC12%E7%AB%A0%20%E6%99%BA%E8%83%BD%E4%BD%93%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0/" title="第12章 智能体性能评估">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第12章 智能体性能评估</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/13/hello-agents/%E7%AC%AC10%E7%AB%A0%20%E6%99%BA%E8%83%BD%E4%BD%93%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" title="第10章 智能体通信协议">
+                        <span class="hidden-mobile">第10章 智能体通信协议</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客人数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

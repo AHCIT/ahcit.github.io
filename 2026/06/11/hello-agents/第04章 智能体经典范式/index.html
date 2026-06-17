@@ -1,0 +1,1340 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="行舟">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 本章目标 现代智能体的核心能力，是将大语言模型的推理能力与外部世界连接起来，使其能够：  理解用户意图 拆解复杂任务 调用搜索、代码解释器、API 等工具 根据外部反馈动态调整 最终完成目标  本章聚焦三种经典智能体范式：    范式 核心思想 关键词     ReAct 边思考边行动，根据观察动态调整 Thought-Action-Observation   Plan-and-Solve">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第04章 智能体经典范式">
+<meta property="og:url" content="https://ahcit.github.io/2026/06/11/hello-agents/%E7%AC%AC04%E7%AB%A0%20%E6%99%BA%E8%83%BD%E4%BD%93%E7%BB%8F%E5%85%B8%E8%8C%83%E5%BC%8F/index.html">
+<meta property="og:site_name" content="行舟">
+<meta property="og:description" content="1. 本章目标 现代智能体的核心能力，是将大语言模型的推理能力与外部世界连接起来，使其能够：  理解用户意图 拆解复杂任务 调用搜索、代码解释器、API 等工具 根据外部反馈动态调整 最终完成目标  本章聚焦三种经典智能体范式：    范式 核心思想 关键词     ReAct 边思考边行动，根据观察动态调整 Thought-Action-Observation   Plan-and-Solve">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-17T01:35:46.100Z">
+<meta property="article:author" content="行舟">
+<meta property="article:tag" content="智能体">
+<meta property="article:tag" content="ReAct">
+<meta property="article:tag" content="Plan-and-Solve">
+<meta property="article:tag" content="Reflection">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>第04章 智能体经典范式 - 行舟</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ahcit.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"yoLmWK0iNdcEMARAqNnAccsm-gzGzoHsz","app_key":"AqZlDi7H00mT33OT16ur41MG","server_url":"https://yolmwk0i.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>行舟</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="第04章 智能体经典范式"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-11 09:00" pubdate>
+          2026年6月11日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">第04章 智能体经典范式</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-本章目标">1. 本章目标</h2>
+<p>现代智能体的核心能力，是将大语言模型的推理能力与外部世界连接起来，使其能够：</p>
+<ul>
+<li>理解用户意图</li>
+<li>拆解复杂任务</li>
+<li>调用搜索、代码解释器、API 等工具</li>
+<li>根据外部反馈动态调整</li>
+<li>最终完成目标</li>
+</ul>
+<p>本章聚焦三种经典智能体范式：</p>
+<table>
+<thead>
+<tr>
+<th>范式</th>
+<th>核心思想</th>
+<th>关键词</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ReAct</td>
+<td>边思考边行动，根据观察动态调整</td>
+<td>Thought-Action-Observation</td>
+</tr>
+<tr>
+<td>Plan-and-Solve</td>
+<td>先完整规划，再逐步执行</td>
+<td>Plan → Solve</td>
+</tr>
+<tr>
+<td>Reflection</td>
+<td>执行后自我反思并优化</td>
+<td>Execute → Reflect → Refine</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-基础环境与组件">2. 基础环境与组件</h2>
+<h3 id="2-1-依赖与配置">2.1 依赖与配置</h3>
+<p>实战主要使用 Python，需要安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">pip install openai python-dotenv<br></code></pre></td></tr></table></figure>
+<p>通过 <code>.env</code> 管理模型配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">LLM_API_KEY=<span class="hljs-string">&quot;YOUR-API-KEY&quot;</span><br>LLM_MODEL_ID=<span class="hljs-string">&quot;YOUR-MODEL&quot;</span><br>LLM_BASE_URL=<span class="hljs-string">&quot;YOUR-URL&quot;</span><br></code></pre></td></tr></table></figure>
+<h3 id="2-2-LLM-客户端封装">2.2 LLM 客户端封装</h3>
+<p><code>HelloAgentsLLM</code> 封装大模型调用细节，核心功能：</p>
+<ul>
+<li>从环境变量读取模型 ID、API Key、Base URL</li>
+<li>使用兼容 OpenAI 接口的服务</li>
+<li>提供 <code>think(messages, temperature=0)</code> 方法</li>
+<li>默认使用流式响应</li>
+</ul>
+<p>封装意义：</p>
+<ul>
+<li>将模型调用与智能体逻辑解耦</li>
+<li>便于复用和替换模型服务</li>
+<li>让后续 ReAct、Plan-and-Solve、Reflection 专注于自身流程</li>
+</ul>
+<hr>
+<h2 id="3-ReAct-范式">3. ReAct 范式</h2>
+<h3 id="3-1-核心思想">3.1 核心思想</h3>
+<p><strong>ReAct = Reasoning + Acting</strong>，由 Shunyu Yao 等人在 2022 年提出。</p>
+<p>它将推理和行动结合起来，形成循环：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Thought → Action → Observation → Thought → ... → Finish<br></code></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thought</td>
+<td>分析当前情况、拆解任务、规划下一步</td>
+</tr>
+<tr>
+<td>Action</td>
+<td>调用工具或输出最终答案</td>
+</tr>
+<tr>
+<td>Observation</td>
+<td>工具执行后的外部反馈</td>
+</tr>
+</tbody>
+</table>
+<p>ReAct 的关键在于：</p>
+<blockquote>
+<p>思考指导行动，行动结果反过来修正思考。</p>
+</blockquote>
+<h3 id="3-2-形式化表达">3.2 形式化表达</h3>
+<p>在时间步 $t$，模型根据问题 $q$ 和历史行动-观察轨迹生成当前思考和行动：</p>
+<p>$$<br>
+(th_t,a_t)=\pi(q,(a_1,o_1),\ldots,(a_{t-1},o_{t-1}))<br>
+$$</p>
+<p>工具执行行动并返回观察：</p>
+<p>$$<br>
+o_t=T(a_t)<br>
+$$</p>
+<h3 id="3-3-适用场景">3.3 适用场景</h3>
+<ul>
+<li>查询实时信息：天气、新闻、股价、产品信息</li>
+<li>精确计算：调用计算器避免 LLM 算错</li>
+<li>与 API 交互：数据库查询、服务调用、业务操作</li>
+</ul>
+<h3 id="3-4-工具设计">3.4 工具设计</h3>
+<p>工具是智能体连接外部世界的“手和脚”。一个工具通常包含三部分：</p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>工具唯一标识，如 <code>Search</code></td>
+</tr>
+<tr>
+<td>Description</td>
+<td>工具用途说明，供 LLM 判断何时使用</td>
+</tr>
+<tr>
+<td>Execution Logic</td>
+<td>真正执行任务的函数</td>
+</tr>
+</tbody>
+</table>
+<p>本章示例工具：基于 SerpApi 的网页搜索工具。</p>
+<p>工具执行器 <code>ToolExecutor</code> 负责：</p>
+<ul>
+<li>注册工具：<code>registerTool(name, description, func)</code></li>
+<li>获取工具：<code>getTool(name)</code></li>
+<li>输出工具描述：<code>getAvailableTools()</code></li>
+</ul>
+<h3 id="3-5-ReAct-智能体实现流程">3.5 ReAct 智能体实现流程</h3>
+<p>核心循环：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs text">格式化提示词<br>→ 调用 LLM 生成 Thought / Action<br>→ 解析 Action<br>→ 判断是否 Finish<br>→ 调用工具<br>→ 得到 Observation<br>→ 追加到 History<br>→ 进入下一轮<br></code></pre></td></tr></table></figure>
+<p>关键组件：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prompt Template</td>
+<td>规定 Thought/Action 输出格式</td>
+</tr>
+<tr>
+<td>Parser</td>
+<td>从模型文本中解析 Thought 和 Action</td>
+</tr>
+<tr>
+<td>ToolExecutor</td>
+<td>执行工具调用</td>
+</tr>
+<tr>
+<td>History</td>
+<td>保存 Action 和 Observation，为下一轮提供上下文</td>
+</tr>
+<tr>
+<td>max_steps</td>
+<td>防止无限循环</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-6-ReAct-特点">3.6 ReAct 特点</h3>
+<p>优点：</p>
+<ul>
+<li><strong>可解释性强</strong>：Thought 展示完整决策轨迹</li>
+<li><strong>动态纠错</strong>：可根据 Observation 调整下一步</li>
+<li><strong>工具协同</strong>：结合 LLM 推理和外部工具能力</li>
+<li><strong>适合开放探索任务</strong>：尤其是信息不确定、需要边查边判断的场景</li>
+</ul>
+<p>局限：</p>
+<ul>
+<li>强依赖 LLM 的推理、格式遵循和工具选择能力</li>
+<li>多轮调用导致延迟和成本较高</li>
+<li>Prompt 脆弱，模型可能不按格式输出</li>
+<li>步进式决策可能缺乏全局规划，陷入局部最优或循环</li>
+</ul>
+<p>调试技巧：</p>
+<ul>
+<li>打印完整 Prompt</li>
+<li>查看 LLM 原始输出</li>
+<li>检查工具输入输出格式</li>
+<li>加入 Few-shot 示例</li>
+<li>使用更强模型或将 <code>temperature</code> 设为 0</li>
+</ul>
+<hr>
+<h2 id="4-Plan-and-Solve-范式">4. Plan-and-Solve 范式</h2>
+<h3 id="4-1-核心思想">4.1 核心思想</h3>
+<p><strong>Plan-and-Solve = 先规划，后执行</strong>。</p>
+<p>与 ReAct “走一步看一步”不同，Plan-and-Solve 更像建筑师先画蓝图，再按图施工。</p>
+<p>流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">用户问题 → Planning Phase → 得到完整计划 → Solving Phase → 逐步执行 → 最终答案<br></code></pre></td></tr></table></figure>
+<h3 id="4-2-工作原理">4.2 工作原理</h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Planning Phase</td>
+<td>将复杂问题分解成清晰、有序、可执行的步骤</td>
+</tr>
+<tr>
+<td>Solving Phase</td>
+<td>严格按照计划逐步执行，每步利用历史结果</td>
+</tr>
+</tbody>
+</table>
+<p>形式化表达：</p>
+<p>规划模型生成计划：</p>
+<p>$$<br>
+P=\pi_{plan}(q)<br>
+$$</p>
+<p>其中：</p>
+<p>$$<br>
+P=(p_1,p_2,\dots,p_n)<br>
+$$</p>
+<p>执行模型逐步完成第 $i$ 个步骤：</p>
+<p>$$<br>
+s_i=\pi_{solve}(q,P,(s_1,\dots,s_{i-1}))<br>
+$$</p>
+<p>最终答案为最后一步结果 $s_n$。</p>
+<h3 id="4-3-适用场景">4.3 适用场景</h3>
+<ul>
+<li>多步数学应用题</li>
+<li>报告撰写与资料整合</li>
+<li>代码生成前的模块规划</li>
+<li>结构清晰、逻辑路径较确定的复杂任务</li>
+</ul>
+<h3 id="4-4-编码实现">4.4 编码实现</h3>
+<p>核心组件：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Planner</td>
+<td>根据原始问题生成步骤列表</td>
+</tr>
+<tr>
+<td>Executor</td>
+<td>按计划逐步执行，并维护历史状态</td>
+</tr>
+<tr>
+<td>PlanAndSolveAgent</td>
+<td>协调整体流程</td>
+</tr>
+</tbody>
+</table>
+<p>规划阶段提示词要求模型输出 Python 列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">[<span class="hljs-string">&quot;步骤1&quot;</span>, <span class="hljs-string">&quot;步骤2&quot;</span>, <span class="hljs-string">&quot;步骤3&quot;</span>]<br></code></pre></td></tr></table></figure>
+<p>执行阶段提示词包含：</p>
+<ul>
+<li>原始问题</li>
+<li>完整计划</li>
+<li>历史步骤与结果</li>
+<li>当前步骤</li>
+</ul>
+<p>执行器每完成一步，就将结果追加到历史中，供下一步使用。</p>
+<h3 id="4-5-示例">4.5 示例</h3>
+<p>问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">周一卖出 15 个苹果，周二是周一两倍，周三比周二少 5 个，三天共卖多少？<br></code></pre></td></tr></table></figure>
+<p>计划：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">1. 计算周一销量：15<br>2. 计算周二销量：15 × 2 = 30<br>3. 计算周三销量：30 - 5 = 25<br>4. 计算总销量：15 + 30 + 25 = 70<br></code></pre></td></tr></table></figure>
+<p>最终答案：<code>70</code>。</p>
+<h3 id="4-6-特点与局限">4.6 特点与局限</h3>
+<p>优点：</p>
+<ul>
+<li>全局结构清晰</li>
+<li>适合长链路、多步骤任务</li>
+<li>避免中途偏离目标</li>
+<li>每一步状态明确，便于追踪</li>
+</ul>
+<p>局限：</p>
+<ul>
+<li>计划通常是静态的，执行中若发现计划不合理，需要额外重规划机制</li>
+<li>不适合高度动态、需要频繁外部反馈的任务</li>
+<li>规划阶段错误会影响后续所有步骤</li>
+</ul>
+<hr>
+<h2 id="5-Reflection-范式">5. Reflection 范式</h2>
+<h3 id="5-1-核心思想">5.1 核心思想</h3>
+<p><strong>Reflection</strong> 为智能体引入“事后自我校正循环”。</p>
+<p>流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Execution → Reflection → Refinement → Reflection → ...<br></code></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Execution</td>
+<td>生成初始方案或答案</td>
+</tr>
+<tr>
+<td>Reflection</td>
+<td>审视初稿，指出错误和改进方向</td>
+</tr>
+<tr>
+<td>Refinement</td>
+<td>根据反馈生成优化版本</td>
+</tr>
+</tbody>
+</table>
+<p>它模拟人类的校对、验算、代码评审过程。</p>
+<h3 id="5-2-形式化表达">5.2 形式化表达</h3>
+<p>第 $i$ 次输出为 $O_i$，反思模型生成反馈：</p>
+<p>$$<br>
+F_i=\pi_{reflect}(Task,O_i)<br>
+$$</p>
+<p>优化模型根据任务、上一版输出和反馈生成新版输出：</p>
+<p>$$<br>
+O_{i+1}=\pi_{refine}(Task,O_i,F_i)<br>
+$$</p>
+<h3 id="5-3-Reflection-的价值">5.3 Reflection 的价值</h3>
+<ul>
+<li>提供内部纠错回路</li>
+<li>能修正逻辑错误、事实错误和策略问题</li>
+<li>将一次性执行转为持续优化</li>
+<li>通过轨迹记录形成短期记忆</li>
+<li>适合高质量、高可靠性任务</li>
+</ul>
+<h3 id="5-4-记忆模块">5.4 记忆模块</h3>
+<p>Reflection 需要记住每轮执行和反馈，因此引入 <code>Memory</code>。</p>
+<p><code>Memory</code> 主要能力：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add_record</code></td>
+<td>添加 execution 或 reflection 记录</td>
+</tr>
+<tr>
+<td><code>get_trajectory</code></td>
+<td>将历史轨迹格式化为文本</td>
+</tr>
+<tr>
+<td><code>get_last_execution</code></td>
+<td>获取最近一次执行结果</td>
+</tr>
+</tbody>
+</table>
+<p>记忆内容通常包括：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">上一轮尝试<br>评审员反馈<br>优化后版本<br>下一轮反馈<br></code></pre></td></tr></table></figure>
+<h3 id="5-5-代码生成案例">5.5 代码生成案例</h3>
+<p>任务：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">编写 Python 函数，找出 1 到 n 之间所有素数。<br></code></pre></td></tr></table></figure>
+<p>初始方案可能使用试除法，复杂度较高：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">O(n * sqrt(n))<br></code></pre></td></tr></table></figure>
+<p>反思阶段指出：</p>
+<ul>
+<li>当前算法效率不够高</li>
+<li>可以使用埃拉托斯特尼筛法</li>
+</ul>
+<p>优化后方案复杂度降低为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">O(n log log n)<br></code></pre></td></tr></table></figure>
+<h3 id="5-6-Reflection-智能体实现">5.6 Reflection 智能体实现</h3>
+<p>核心提示词：</p>
+<table>
+<thead>
+<tr>
+<th>Prompt</th>
+<th>角色</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial Prompt</td>
+<td>资深程序员</td>
+<td>生成初始代码</td>
+</tr>
+<tr>
+<td>Reflect Prompt</td>
+<td>严格代码评审专家</td>
+<td>找出效率瓶颈并给改进建议</td>
+</tr>
+<tr>
+<td>Refine Prompt</td>
+<td>资深程序员</td>
+<td>根据反馈优化代码</td>
+</tr>
+</tbody>
+</table>
+<p>核心循环：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">初始执行<br>→ 写入 Memory<br>→ 反思<br>→ 若“无需改进”则停止<br>→ 否则优化<br>→ 写入 Memory<br>→ 下一轮<br></code></pre></td></tr></table></figure>
+<p>终止条件：</p>
+<ul>
+<li>反馈中包含“无需改进”</li>
+<li>达到最大迭代次数</li>
+</ul>
+<h3 id="5-7-成本收益分析">5.7 成本收益分析</h3>
+<p>成本：</p>
+<ul>
+<li>模型调用次数增加</li>
+<li>任务延迟提高</li>
+<li>Prompt 设计更复杂</li>
+</ul>
+<p>收益：</p>
+<ul>
+<li>结果质量显著提升</li>
+<li>可靠性和鲁棒性增强</li>
+<li>能从“可用方案”迭代到“高质量方案”</li>
+</ul>
+<p>适合场景：</p>
+<ul>
+<li>关键业务代码生成</li>
+<li>技术报告和研究报告</li>
+<li>复杂逻辑推演</li>
+<li>决策支持系统</li>
+</ul>
+<p>不适合场景：</p>
+<ul>
+<li>强实时任务</li>
+<li>对质量要求不高的快速响应任务</li>
+</ul>
+<hr>
+<h2 id="6-三种范式对比">6. 三种范式对比</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ReAct</th>
+<th>Plan-and-Solve</th>
+<th>Reflection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心流程</td>
+<td>思考-行动-观察循环</td>
+<td>先规划后执行</td>
+<td>执行-反思-优化</td>
+</tr>
+<tr>
+<td>决策方式</td>
+<td>动态步进</td>
+<td>静态计划为主</td>
+<td>迭代改进</td>
+</tr>
+<tr>
+<td>是否依赖工具</td>
+<td>通常依赖</td>
+<td>可依赖，也可纯推理</td>
+<td>不一定依赖</td>
+</tr>
+<tr>
+<td>优势</td>
+<td>灵活、可解释、适应环境</td>
+<td>结构清晰、目标稳定</td>
+<td>质量高、可靠性强</td>
+</tr>
+<tr>
+<td>局限</td>
+<td>成本高，可能循环</td>
+<td>计划错误会传导</td>
+<td>延迟高，调用成本高</td>
+</tr>
+<tr>
+<td>适合任务</td>
+<td>搜索、API 操作、开放探索</td>
+<td>数学题、报告、结构化任务</td>
+<td>代码优化、审稿、复杂决策</td>
+</tr>
+</tbody>
+</table>
+<p>选择建议：</p>
+<table>
+<thead>
+<tr>
+<th>任务特点</th>
+<th>推荐范式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需要实时外部信息</td>
+<td>ReAct</td>
+</tr>
+<tr>
+<td>任务结构清晰、步骤明确</td>
+<td>Plan-and-Solve</td>
+</tr>
+<tr>
+<td>对质量和可靠性要求极高</td>
+<td>Reflection</td>
+</tr>
+<tr>
+<td>复杂真实业务</td>
+<td>混合使用三者</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-混合范式思路">7. 混合范式思路</h2>
+<p>实际智能体系统中，三种范式可以组合使用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">Plan-and-Solve 负责生成整体计划<br>→ ReAct 负责执行每个需要工具交互的步骤<br>→ Reflection 负责检查最终结果并优化<br></code></pre></td></tr></table></figure>
+<p>例如客服退款智能体：</p>
+<ol>
+<li>Plan-and-Solve：规划处理流程</li>
+<li>ReAct：查询订单、物流、政策工具</li>
+<li>Reflection：对争议决策进行复核</li>
+<li>最终生成回复邮件</li>
+</ol>
+<hr>
+<h2 id="8-本章要点总结">8. 本章要点总结</h2>
+<ol>
+<li>智能体经典范式的核心，是组织 LLM 的“思考”和“行动”过程</li>
+<li>ReAct 通过 Thought-Action-Observation 循环实现动态决策和工具调用</li>
+<li>ReAct 适合需要外部信息、实时反馈和工具协作的任务</li>
+<li>Plan-and-Solve 将任务拆为规划和执行两阶段，适合结构化、多步骤任务</li>
+<li>Plan-and-Solve 的关键是计划质量和执行时的状态管理</li>
+<li>Reflection 通过执行、反思、优化循环提升最终结果质量</li>
+<li>Reflection 本质上是以更多模型调用成本换取更高可靠性</li>
+<li>三种范式没有绝对优劣，应根据任务特征选择或组合使用</li>
+<li>亲手实现这些范式，有助于理解智能体框架背后的设计机制</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Agent/" class="category-chain-item">Agent</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/">#智能体</a>
+      
+        <a href="/tags/ReAct/">#ReAct</a>
+      
+        <a href="/tags/Plan-and-Solve/">#Plan-and-Solve</a>
+      
+        <a href="/tags/Reflection/">#Reflection</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>第04章 智能体经典范式</div>
+      <div>https://ahcit.github.io/2026/06/11/hello-agents/第04章 智能体经典范式/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>行舟</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/11/hello-agents/%E7%AC%AC05%E7%AB%A0%20%E5%9F%BA%E4%BA%8E%E4%BD%8E%E4%BB%A3%E7%A0%81%E5%B9%B3%E5%8F%B0%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E6%90%AD%E5%BB%BA/" title="第05章 基于低代码平台的智能体搭建">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第05章 基于低代码平台的智能体搭建</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/10/hello-agents/%E7%AC%AC03%E7%AB%A0%20%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/" title="第03章 大语言模型基础">
+                        <span class="hidden-mobile">第03章 大语言模型基础</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客人数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

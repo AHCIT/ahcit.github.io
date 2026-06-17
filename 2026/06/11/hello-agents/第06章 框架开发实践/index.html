@@ -1,0 +1,1450 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="行舟">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 从手动实现到框架开发 第四章手写了 ReAct、Plan-and-Solve、Reflection，适合理解原理；第五章体验了低代码平台，适合快速构建应用。本章关注智能体框架：在保留代码灵活性的同时，复用成熟框架的规范、组件和工程能力。 1.1 为什么需要智能体框架    价值 说明     代码复用 封装 Agent Loop、工具调用、状态管理等通用逻辑   组件解耦 模型层、工具层、记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第06章 框架开发实践">
+<meta property="og:url" content="https://ahcit.github.io/2026/06/11/hello-agents/%E7%AC%AC06%E7%AB%A0%20%E6%A1%86%E6%9E%B6%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="行舟">
+<meta property="og:description" content="1. 从手动实现到框架开发 第四章手写了 ReAct、Plan-and-Solve、Reflection，适合理解原理；第五章体验了低代码平台，适合快速构建应用。本章关注智能体框架：在保留代码灵活性的同时，复用成熟框架的规范、组件和工程能力。 1.1 为什么需要智能体框架    价值 说明     代码复用 封装 Agent Loop、工具调用、状态管理等通用逻辑   组件解耦 模型层、工具层、记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T13:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-17T01:35:46.101Z">
+<meta property="article:author" content="行舟">
+<meta property="article:tag" content="智能体">
+<meta property="article:tag" content="框架">
+<meta property="article:tag" content="AutoGen">
+<meta property="article:tag" content="AgentScope">
+<meta property="article:tag" content="CAMEL">
+<meta property="article:tag" content="LangGraph">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>第06章 框架开发实践 - 行舟</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ahcit.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"yoLmWK0iNdcEMARAqNnAccsm-gzGzoHsz","app_key":"AqZlDi7H00mT33OT16ur41MG","server_url":"https://yolmwk0i.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>行舟</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="第06章 框架开发实践"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-11 21:00" pubdate>
+          2026年6月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">第06章 框架开发实践</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-从手动实现到框架开发">1. 从手动实现到框架开发</h2>
+<p>第四章手写了 ReAct、Plan-and-Solve、Reflection，适合理解原理；第五章体验了低代码平台，适合快速构建应用。本章关注<strong>智能体框架</strong>：在保留代码灵活性的同时，复用成熟框架的规范、组件和工程能力。</p>
+<h3 id="1-1-为什么需要智能体框架">1.1 为什么需要智能体框架</h3>
+<table>
+<thead>
+<tr>
+<th>价值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码复用</td>
+<td>封装 Agent Loop、工具调用、状态管理等通用逻辑</td>
+</tr>
+<tr>
+<td>组件解耦</td>
+<td>模型层、工具层、记忆层分离，便于替换和扩展</td>
+</tr>
+<tr>
+<td>状态管理</td>
+<td>处理上下文窗口、历史持久化、多轮对话状态等复杂问题</td>
+</tr>
+<tr>
+<td>可观测性</td>
+<td>通过回调、日志、事件追踪智能体执行轨迹</td>
+</tr>
+<tr>
+<td>工程化</td>
+<td>支持并发、容错、分布式部署和团队协作</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>框架的本质是提供经过验证的规范，让开发者专注于业务逻辑，而不是重复实现底层基础设施。</p>
+</blockquote>
+<hr>
+<h2 id="2-主流框架对比">2. 主流框架对比</h2>
+<p>本章聚焦四个代表性框架：AutoGen、AgentScope、CAMEL、LangGraph。</p>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>核心思想</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AutoGen</td>
+<td>以对话驱动多智能体协作</td>
+<td>软件开发团队、角色分工协作</td>
+</tr>
+<tr>
+<td>AgentScope</td>
+<td>工程化优先的消息驱动多智能体平台</td>
+<td>大规模、分布式、高可靠系统</td>
+</tr>
+<tr>
+<td>CAMEL</td>
+<td>角色扮演 + 引导性提示</td>
+<td>双智能体深度协作、创作类任务</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>用状态机和图建模工作流</td>
+<td>可控流程、循环、反思、审批系统</td>
+</tr>
+</tbody>
+</table>
+<p>核心权衡：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">涌现式协作 ←→ 显式流程控制<br></code></pre></td></tr></table></figure>
+<ul>
+<li>AutoGen / CAMEL 更偏“角色 + 对话”驱动，协作行为更自然，但更难预测</li>
+<li>LangGraph 更偏显式控制，可控、可审计，但前期代码更多</li>
+<li>AgentScope 更强调生产级工程能力</li>
+</ul>
+<hr>
+<h2 id="3-AutoGen：对话驱动协作">3. AutoGen：对话驱动协作</h2>
+<h3 id="3-1-核心机制">3.1 核心机制</h3>
+<p>AutoGen 将复杂任务映射为多个智能体之间的自动化对话。新版 <code>0.7.4</code> 引入更清晰的分层和异步优先设计。</p>
+<p>核心模块：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>autogen-core</td>
+<td>底层模型交互、消息传递等基础能力</td>
+</tr>
+<tr>
+<td>autogen-agentchat</td>
+<td>构建对话式智能体应用的高级接口</td>
+</tr>
+</tbody>
+</table>
+<p>关键特点：</p>
+<ul>
+<li>分层设计，降低耦合</li>
+<li>异步优先，适合多智能体并发协作</li>
+<li>通过系统消息定义角色和职责</li>
+</ul>
+<h3 id="3-2-核心智能体">3.2 核心智能体</h3>
+<table>
+<thead>
+<tr>
+<th>智能体</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AssistantAgent</td>
+<td>主要任务解决者，封装 LLM，根据系统消息扮演不同角色</td>
+</tr>
+<tr>
+<td>UserProxyAgent</td>
+<td>用户代理，可发起任务、执行代码、调用工具、验证结果</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-Team-与-RoundRobinGroupChat">3.3 Team 与 RoundRobinGroupChat</h3>
+<p>新版 AutoGen 用 <code>Team</code> / 群聊机制协调多个智能体。<code>RoundRobinGroupChat</code> 是轮询式群聊：多个智能体按预设顺序依次发言。</p>
+<p>适合固定流程任务，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">产品经理 → 工程师 → 代码审查员 → 用户代理<br></code></pre></td></tr></table></figure>
+<p>关键配置：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>participants</td>
+<td>智能体参与者列表，顺序决定发言顺序</td>
+</tr>
+<tr>
+<td>termination_condition</td>
+<td>终止条件，如检测到 <code>TERMINATE</code></td>
+</tr>
+<tr>
+<td>max_turns</td>
+<td>最大轮次，防止无限循环</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-案例：软件开发团队">3.4 案例：软件开发团队</h3>
+<p>目标：开发一个实时显示比特币价格的 Streamlit Web 应用。</p>
+<p>团队角色：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ProductManager</td>
+<td>需求分析、技术规划、验收标准</td>
+</tr>
+<tr>
+<td>Engineer</td>
+<td>技术实现、代码编写、异常处理</td>
+</tr>
+<tr>
+<td>CodeReviewer</td>
+<td>审查代码质量、安全性、最佳实践</td>
+</tr>
+<tr>
+<td>UserProxy</td>
+<td>代表用户发起任务、测试并终止流程</td>
+</tr>
+</tbody>
+</table>
+<p>协作流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs text">用户需求<br>→ ProductManager 分析需求<br>→ Engineer 编写代码<br>→ CodeReviewer 审查代码<br>→ UserProxy 测试并确认<br>→ TERMINATE<br></code></pre></td></tr></table></figure>
+<h3 id="3-5-AutoGen-优势与局限">3.5 AutoGen 优势与局限</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优势</td>
+<td>对话建模自然、角色分工清晰、人类在环方便、适合团队式协作</td>
+</tr>
+<tr>
+<td>局限</td>
+<td>对话具有不确定性，可能偏离主题；调试依赖长对话历史，定位问题困难</td>
+</tr>
+</tbody>
+</table>
+<p>适合任务：</p>
+<ul>
+<li>软件开发团队模拟</li>
+<li>多角色讨论</li>
+<li>需要人类参与验收的流程</li>
+<li>角色边界清晰的协作任务</li>
+</ul>
+<hr>
+<h2 id="4-AgentScope：工程化多智能体平台">4. AgentScope：工程化多智能体平台</h2>
+<h3 id="4-1-设计理念">4.1 设计理念</h3>
+<p>AgentScope 由阿里巴巴达摩院开发，定位是<strong>工程化优先的多智能体平台</strong>。如果 AutoGen 像“对话工作室”，AgentScope 更像“智能体操作系统”。</p>
+<p>核心特点：</p>
+<ul>
+<li>消息驱动架构</li>
+<li>组合式设计</li>
+<li>支持异步执行</li>
+<li>支持分布式部署</li>
+<li>内置容错、可观测性、生命周期管理</li>
+</ul>
+<h3 id="4-2-分层架构">4.2 分层架构</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础组件层</td>
+<td>Message、Memory、Model API、Tool</td>
+</tr>
+<tr>
+<td>智能体基础设施层</td>
+<td>预构建智能体、ReAct、状态管理、并行工具调用</td>
+</tr>
+<tr>
+<td>多智能体协作层</td>
+<td>MsgHub、Pipeline，负责消息路由和流程编排</td>
+</tr>
+<tr>
+<td>开发与部署层</td>
+<td>Runtime、Studio，支持生产级部署和可视化开发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-3-消息驱动架构">4.3 消息驱动架构</h3>
+<p>AgentScope 将智能体交互抽象为消息收发，而不是函数调用。</p>
+<p>消息基本结构：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">Msg(<br>    name=<span class="hljs-string">&quot;Alice&quot;</span>,<br>    content=<span class="hljs-string">&quot;Hello, Bob!&quot;</span>,<br>    role=<span class="hljs-string">&quot;user&quot;</span>,<br>    metadata=&#123;...&#125;<br>)<br></code></pre></td></tr></table></figure>
+<p>优势：</p>
+<table>
+<thead>
+<tr>
+<th>优势</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>异步解耦</td>
+<td>发送方和接收方无需同步等待</td>
+</tr>
+<tr>
+<td>位置透明</td>
+<td>本地或远程智能体都通过消息通信</td>
+</tr>
+<tr>
+<td>可观测性</td>
+<td>每条消息都可记录和追踪</td>
+</tr>
+<tr>
+<td>可靠性</td>
+<td>支持持久化和重试，提升容错能力</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-4-MsgHub-与生命周期">4.4 MsgHub 与生命周期</h3>
+<p><code>MsgHub</code> 是消息中心，负责：</p>
+<ul>
+<li>点对点通信</li>
+<li>广播/组播</li>
+<li>消息持久化</li>
+<li>跨进程/跨服务器通信</li>
+</ul>
+<p>智能体基于 <code>AgentBase</code>，核心方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reply</code></td>
+<td>接收消息并生成回应</td>
+</tr>
+<tr>
+<td><code>observe</code></td>
+<td>观察消息并写入记忆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-5-案例：三国狼人杀">4.5 案例：三国狼人杀</h3>
+<p>目标：构建一个融合三国角色人格的多智能体狼人杀游戏。</p>
+<p>系统分层：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>游戏控制层</td>
+<td>维护玩家、阶段、胜负状态</td>
+</tr>
+<tr>
+<td>智能体交互层</td>
+<td>基于 MsgHub 进行消息路由</td>
+</tr>
+<tr>
+<td>角色建模层</td>
+<td>每个玩家是 DialogAgent，同时具备游戏身份和三国人格</td>
+</tr>
+</tbody>
+</table>
+<p>关键机制：</p>
+<ul>
+<li>狼人夜晚阶段通过私密 MsgHub 协商</li>
+<li>白天讨论通过全员广播</li>
+<li>投票阶段使用并发 <code>fanout_pipeline</code></li>
+<li>用结构化输出约束行为格式和规则</li>
+</ul>
+<h3 id="4-6-结构化输出">4.6 结构化输出</h3>
+<p>通过 Pydantic 模型约束智能体行为，例如：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DiscussionModelCN</td>
+<td>约束讨论阶段输出：是否达成一致、信心程度、关键证据</td>
+</tr>
+<tr>
+<td>WitchActionModelCN</td>
+<td>约束女巫行动：是否用药、目标是谁</td>
+</tr>
+</tbody>
+</table>
+<p>价值：</p>
+<ul>
+<li>保证输出格式一致</li>
+<li>自动约束游戏规则</li>
+<li>降低解析失败概率</li>
+<li>提升系统稳定性</li>
+</ul>
+<h3 id="4-7-AgentScope-优势与局限">4.7 AgentScope 优势与局限</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优势</td>
+<td>消息驱动、并发友好、分布式支持、容错能力强、适合生产级系统</td>
+</tr>
+<tr>
+<td>局限</td>
+<td>架构复杂，学习成本较高；简单场景可能过度工程化；生态仍在完善</td>
+</tr>
+</tbody>
+</table>
+<p>适合任务：</p>
+<ul>
+<li>大规模多智能体系统</li>
+<li>实时协作游戏/仿真</li>
+<li>需要分布式部署的生产系统</li>
+<li>高并发、高可靠任务</li>
+</ul>
+<hr>
+<h2 id="5-CAMEL：角色扮演式协作">5. CAMEL：角色扮演式协作</h2>
+<h3 id="5-1-核心思想">5.1 核心思想</h3>
+<p>CAMEL 的核心是通过<strong>角色扮演（Role-Playing）<strong>和</strong>引导性提示（Inception Prompting）</strong>，让两个智能体在较少人工干预下自主协作。</p>
+<p>典型结构：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI User</td>
+<td>提出需求、下达指令、推动任务</td>
+</tr>
+<tr>
+<td>AI Assistant</td>
+<td>执行指令、提供方案、完成任务</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-2-引导性提示">5.2 引导性提示</h3>
+<p>引导性提示会在对话开始前注入给双方，通常包含：</p>
+<ul>
+<li>自身角色</li>
+<li>协作者角色</li>
+<li>共同目标</li>
+<li>行为约束</li>
+<li>沟通协议</li>
+<li>任务完成标志</li>
+</ul>
+<p>作用：</p>
+<ul>
+<li>防止角色漂移</li>
+<li>防止对话偏题</li>
+<li>保证任务逐步推进</li>
+<li>降低多轮协作设计成本</li>
+</ul>
+<h3 id="5-3-案例：AI-科普电子书">5.3 案例：AI 科普电子书</h3>
+<p>目标：让心理学家和作家合作，创作一本面向普通读者的《拖延症心理学》短篇电子书。</p>
+<p>角色设计：</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>心理学家</td>
+<td>提供心理学理论、实证研究、专业解释</td>
+</tr>
+<tr>
+<td>作家</td>
+<td>规划结构、提升可读性、将专业知识转化为通俗表达</td>
+</tr>
+</tbody>
+</table>
+<p>协作阶段：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs text">框架搭建与目标对齐<br>→ 核心内容生成与知识转译<br>→ 迭代优化与质量保证<br>→ 总结与升华<br></code></pre></td></tr></table></figure>
+<h3 id="5-4-CAMEL-优势与局限">5.4 CAMEL 优势与局限</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优势</td>
+<td>轻架构、重提示；适合创造性协作；用较少代码激发专家协作</td>
+</tr>
+<tr>
+<td>局限</td>
+<td>高度依赖提示质量；大规模多智能体管理较弱；复杂流程控制能力有限</td>
+</tr>
+</tbody>
+</table>
+<p>适合任务：</p>
+<ul>
+<li>内容创作</li>
+<li>专家协作</li>
+<li>头脑风暴</li>
+<li>两个互补角色共同完成的任务</li>
+</ul>
+<p>不适合任务：</p>
+<ul>
+<li>严格审批流程</li>
+<li>高并发分布式系统</li>
+<li>复杂决策树</li>
+<li>强可审计流程</li>
+</ul>
+<hr>
+<h2 id="6-LangGraph：状态机与图控制">6. LangGraph：状态机与图控制</h2>
+<h3 id="6-1-核心思想">6.1 核心思想</h3>
+<p>LangGraph 将智能体执行过程建模为<strong>状态机（State Machine）<strong>和</strong>有向图（Directed Graph）</strong>。</p>
+<p>三个核心要素：</p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>State</td>
+<td>全局共享状态，贯穿整个执行过程</td>
+</tr>
+<tr>
+<td>Node</td>
+<td>具体计算步骤，如调用 LLM、执行工具</td>
+</tr>
+<tr>
+<td>Edge</td>
+<td>节点之间的跳转逻辑</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-2-State">6.2 State</h3>
+<p>状态通常用 <code>TypedDict</code> 定义，保存执行中的关键信息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">AgentState</span>(<span class="hljs-title class_ inherited__">TypedDict</span>):<br>    messages: <span class="hljs-built_in">list</span><br>    current_task: <span class="hljs-built_in">str</span><br>    final_answer: <span class="hljs-built_in">str</span><br></code></pre></td></tr></table></figure>
+<p>所有节点都能读取和更新状态。</p>
+<h3 id="6-3-Node">6.3 Node</h3>
+<p>节点是接收状态并返回状态更新的函数：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">state → node_function → updated_state<br></code></pre></td></tr></table></figure>
+<p>常见节点：</p>
+<ul>
+<li>规划节点</li>
+<li>工具调用节点</li>
+<li>搜索节点</li>
+<li>反思节点</li>
+<li>回答节点</li>
+</ul>
+<h3 id="6-4-Edge-与条件边">6.4 Edge 与条件边</h3>
+<p>普通边：固定跳转。</p>
+<p>条件边：根据状态动态决定下一步。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">如果结果合格 → END<br>如果结果不合格 → 回到反思/搜索节点<br></code></pre></td></tr></table></figure>
+<p>这使 LangGraph 天然适合实现：</p>
+<ul>
+<li>循环</li>
+<li>重试</li>
+<li>反思</li>
+<li>审批</li>
+<li>人类在环</li>
+</ul>
+<h3 id="6-5-案例：三步问答助手">6.5 案例：三步问答助手</h3>
+<p>目标：构建一个按固定流程工作的搜索问答助手。</p>
+<p>流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Understand → Search → Answer<br></code></pre></td></tr></table></figure>
+<p>全局状态 <code>SearchState</code> 包含：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>messages</td>
+<td>对话历史</td>
+</tr>
+<tr>
+<td>user_query</td>
+<td>理解后的用户需求</td>
+</tr>
+<tr>
+<td>search_query</td>
+<td>优化后的搜索关键词</td>
+</tr>
+<tr>
+<td>search_results</td>
+<td>搜索结果</td>
+</tr>
+<tr>
+<td>final_answer</td>
+<td>最终答案</td>
+</tr>
+<tr>
+<td>step</td>
+<td>当前步骤标记</td>
+</tr>
+</tbody>
+</table>
+<p>节点设计：</p>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>understand_query_node</td>
+<td>理解用户问题并生成搜索关键词</td>
+</tr>
+<tr>
+<td>tavily_search_node</td>
+<td>调用 Tavily API 搜索</td>
+</tr>
+<tr>
+<td>generate_answer_node</td>
+<td>根据搜索结果生成最终答案</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-6-LangGraph-优势与局限">6.6 LangGraph 优势与局限</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优势</td>
+<td>流程可控、可预测、可审计；原生支持循环；节点模块化；适合人类在环</td>
+</tr>
+<tr>
+<td>局限</td>
+<td>前期代码较多；对简单任务显得繁琐；缺少对话式协作的涌现性；调试需要理解全局状态流</td>
+</tr>
+</tbody>
+</table>
+<p>适合任务：</p>
+<ul>
+<li>金融审批</li>
+<li>代码生成-测试-修复循环</li>
+<li>论文写作-审阅-修改循环</li>
+<li>严格流程控制和可审计系统</li>
+</ul>
+<hr>
+<h2 id="7-框架选型建议">7. 框架选型建议</h2>
+<table>
+<thead>
+<tr>
+<th>任务特点</th>
+<th>推荐框架</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多角色自然对话协作</td>
+<td>AutoGen</td>
+</tr>
+<tr>
+<td>高并发、分布式、生产级多智能体系统</td>
+<td>AgentScope</td>
+</tr>
+<tr>
+<td>两个专家角色深度协作、创作类任务</td>
+<td>CAMEL</td>
+</tr>
+<tr>
+<td>严格流程、循环、审批、可审计</td>
+<td>LangGraph</td>
+</tr>
+</tbody>
+</table>
+<p>典型产品选型：</p>
+<table>
+<thead>
+<tr>
+<th>应用</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>智能客服，高并发低延迟</td>
+<td>AgentScope 或纯代码</td>
+</tr>
+<tr>
+<td>科研论文辅助写作，多专家深度讨论</td>
+<td>CAMEL / AutoGen</td>
+</tr>
+<tr>
+<td>金融风控审批，流程严格可追溯</td>
+<td>LangGraph</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="8-本章要点总结">8. 本章要点总结</h2>
+<ol>
+<li>智能体框架用于抽象通用能力，让开发者专注业务逻辑</li>
+<li>框架相比手写代码更适合复杂、可维护、可扩展的智能体系统</li>
+<li>AutoGen 以对话驱动协作，适合角色分工明确的团队式任务</li>
+<li>AgentScope 以消息驱动和工程化能力见长，适合大规模生产系统</li>
+<li>CAMEL 通过角色扮演和引导性提示实现轻量级专家协作</li>
+<li>LangGraph 用状态机和图控制流程，适合高可靠、可审计、可循环任务</li>
+<li>框架设计的核心权衡是“涌现式协作”与“显式控制”</li>
+<li>生产级智能体还必须考虑并发、容错、可观测性、状态持久化和部署运维</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Agent/" class="category-chain-item">Agent</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/">#智能体</a>
+      
+        <a href="/tags/%E6%A1%86%E6%9E%B6/">#框架</a>
+      
+        <a href="/tags/AutoGen/">#AutoGen</a>
+      
+        <a href="/tags/AgentScope/">#AgentScope</a>
+      
+        <a href="/tags/CAMEL/">#CAMEL</a>
+      
+        <a href="/tags/LangGraph/">#LangGraph</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>第06章 框架开发实践</div>
+      <div>https://ahcit.github.io/2026/06/11/hello-agents/第06章 框架开发实践/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>行舟</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/12/hello-agents/%E7%AC%AC07%E7%AB%A0%20%E6%9E%84%E5%BB%BA%E4%BD%A0%E7%9A%84Agent%E6%A1%86%E6%9E%B6/" title="第07章 构建你的Agent框架">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第07章 构建你的Agent框架</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/11/hello-agents/%E7%AC%AC05%E7%AB%A0%20%E5%9F%BA%E4%BA%8E%E4%BD%8E%E4%BB%A3%E7%A0%81%E5%B9%B3%E5%8F%B0%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E6%90%AD%E5%BB%BA/" title="第05章 基于低代码平台的智能体搭建">
+                        <span class="hidden-mobile">第05章 基于低代码平台的智能体搭建</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客人数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,925 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="行舟">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 本章目标 上下文指模型采样时可见的全部 tokens，包括系统提示、用户输入、工具说明、对话历史、检索结果、外部文件、记忆、笔记和中间状态。 提示工程关注“怎么写提示词”。 上下文工程关注“哪些信息应该进入上下文，以及如何收集、筛选、组织、压缩和维护”。 随着智能体从单轮问答走向长时程任务，模型需要在多次推理循环中持续使用状态信息，仅靠静态提示词已经不够。 2. 为什么上下文工程重要 上下文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第09章 上下文工程">
+<meta property="og:url" content="https://ahcit.github.io/2026/06/12/hello-agents/%E7%AC%AC09%E7%AB%A0%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/index.html">
+<meta property="og:site_name" content="行舟">
+<meta property="og:description" content="1. 本章目标 上下文指模型采样时可见的全部 tokens，包括系统提示、用户输入、工具说明、对话历史、检索结果、外部文件、记忆、笔记和中间状态。 提示工程关注“怎么写提示词”。 上下文工程关注“哪些信息应该进入上下文，以及如何收集、筛选、组织、压缩和维护”。 随着智能体从单轮问答走向长时程任务，模型需要在多次推理循环中持续使用状态信息，仅靠静态提示词已经不够。 2. 为什么上下文工程重要 上下文">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-12T13:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-17T01:35:46.102Z">
+<meta property="article:author" content="行舟">
+<meta property="article:tag" content="HelloAgents">
+<meta property="article:tag" content="上下文工程">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>第09章 上下文工程 - 行舟</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ahcit.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"yoLmWK0iNdcEMARAqNnAccsm-gzGzoHsz","app_key":"AqZlDi7H00mT33OT16ur41MG","server_url":"https://yolmwk0i.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>行舟</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="第09章 上下文工程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-12 21:00" pubdate>
+          2026年6月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          6 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">第09章 上下文工程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-本章目标">1. 本章目标</h2>
+<p>上下文指模型采样时可见的全部 tokens，包括系统提示、用户输入、工具说明、对话历史、检索结果、外部文件、记忆、笔记和中间状态。</p>
+<p><strong>提示工程</strong>关注“怎么写提示词”。</p>
+<p><strong>上下文工程</strong>关注“哪些信息应该进入上下文，以及如何收集、筛选、组织、压缩和维护”。</p>
+<p>随着智能体从单轮问答走向长时程任务，模型需要在多次推理循环中持续使用状态信息，仅靠静态提示词已经不够。</p>
+<h2 id="2-为什么上下文工程重要">2. 为什么上下文工程重要</h2>
+<p>上下文窗口看似越来越大，但并不意味着可以无限塞信息。随着 token 数增加，模型会出现 <strong>上下文腐蚀</strong>：信息越多，模型越容易忽略关键内容。</p>
+<p>Transformer 的注意力关系近似随长度形成 \(n^2\) 级别交互。上下文越长，注意力越分散，模型对关键信息的定位和长程依赖会下降。</p>
+<p>因此，上下文应被视为有限资源。优秀的上下文工程目标是：</p>
+<blockquote>
+<p>用尽可能少但高信号密度的 tokens，最大化模型产生期望行为的概率。</p>
+</blockquote>
+<h2 id="3-有效上下文的组成">3. 有效上下文的组成</h2>
+<h3 id="系统提示">系统提示</h3>
+<p>系统提示应清晰、直接、层次适中。常见误区：</p>
+<ul>
+<li>过度硬编码复杂规则，导致维护困难。</li>
+<li>过于抽象，缺少具体行为约束。</li>
+</ul>
+<p>建议用 Markdown 或 XML 分区组织角色、背景、任务、工具说明和输出格式。</p>
+<h3 id="工具">工具</h3>
+<p>工具是智能体与外部世界交互的接口。工具设计应：</p>
+<ul>
+<li>职责单一。</li>
+<li>接口语义清晰。</li>
+<li>参数描述明确。</li>
+<li>错误处理友好。</li>
+<li>返回结果 token 友好。</li>
+</ul>
+<p>工具越多不一定越好。边界模糊的工具集会增加模型选择成本。</p>
+<h3 id="示例">示例</h3>
+<p>Few-shot 示例能显著改善模型行为，但不应堆砌边界条件。好的示例应典型、多样、直接刻画期望输出。</p>
+<h2 id="4-JIT-上下文与智能体式搜索">4. JIT 上下文与智能体式搜索</h2>
+<p>传统 RAG 常在推理前一次性检索信息，而上下文工程更强调 <strong>及时上下文（Just-in-time Context）</strong>。</p>
+<p>JIT 上下文的思路是：</p>
+<ul>
+<li>不预先塞入所有信息。</li>
+<li>保留轻量引用，如文件路径、URL、数据库查询条件。</li>
+<li>让智能体运行时通过工具按需读取。</li>
+<li>逐步披露信息，避免上下文污染。</li>
+</ul>
+<p>这与人类工作方式类似：我们不会记住所有资料，而是知道如何查找和利用资料。</p>
+<h2 id="5-长时程任务中的上下文管理">5. 长时程任务中的上下文管理</h2>
+<p>长时程任务可能跨越大量工具调用、多轮对话和多阶段目标。仅依赖大上下文窗口并不可靠，需要三类机制。</p>
+<h3 id="压缩整合">压缩整合</h3>
+<p>当上下文接近上限时，对历史进行高保真总结，用摘要接续新上下文。重点保留：</p>
+<ul>
+<li>架构决策。</li>
+<li>未解决问题。</li>
+<li>关键文件和实现细节。</li>
+<li>当前任务状态。</li>
+</ul>
+<h3 id="结构化笔记">结构化笔记</h3>
+<p>智能体将阶段性结论写入外部存储，如 Markdown 笔记、TODO、项目日志等。后续按需检索，降低上下文占用。</p>
+<h3 id="子代理架构">子代理架构</h3>
+<p>主代理负责规划和综合，子代理在独立上下文中并行探索，最后只返回浓缩结果。适合复杂研究、代码分析等任务。</p>
+<h2 id="6-ContextBuilder：GSSC-流水线">6. ContextBuilder：GSSC 流水线</h2>
+<p>HelloAgents 引入 <code>ContextBuilder</code>，实现 GSSC 流水线：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">Gather → Select → Structure → Compress<br></code></pre></td></tr></table></figure>
+<h3 id="Gather：汇集">Gather：汇集</h3>
+<p>从多个来源收集候选信息：</p>
+<ul>
+<li>系统指令。</li>
+<li>对话历史。</li>
+<li>MemoryTool 检索结果。</li>
+<li>RAGTool 检索结果。</li>
+<li>自定义 ContextPacket。</li>
+</ul>
+<p>设计重点是容错：某个信息源失败不应中断整体构建。</p>
+<h3 id="Select：选择">Select：选择</h3>
+<p>根据相关性和新近性选择信息。核心评分可概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">综合分数 = 相关性权重 × 相关性 + 新近性权重 × 新近性<br></code></pre></td></tr></table></figure>
+<p>选择时还要考虑 token 预算，优先保留系统指令和高价值信息。</p>
+<h3 id="Structure：结构化">Structure：结构化</h3>
+<p>将选中的信息组织成固定分区，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs text">[Role &amp; Policies]<br>[Task]<br>[Evidence]<br>[Context]<br>[Output]<br></code></pre></td></tr></table></figure>
+<p>固定结构有利于调试、评估和 A/B 测试。</p>
+<h3 id="Compress：压缩">Compress：压缩</h3>
+<p>如果上下文超限，则按分区压缩或截断。生产环境中可使用 LLM 摘要，简单实现可按 token 预算截断。</p>
+<h2 id="7-ContextPacket-与-ContextConfig">7. ContextPacket 与 ContextConfig</h2>
+<p><code>ContextPacket</code> 是候选信息单元，包含：</p>
+<ul>
+<li>内容。</li>
+<li>时间戳。</li>
+<li>token 数。</li>
+<li>相关性分数。</li>
+<li>元数据。</li>
+</ul>
+<p><code>ContextConfig</code> 管理上下文构建参数：</p>
+<ul>
+<li><code>max_tokens</code>：最大 token 数。</li>
+<li><code>reserve_ratio</code>：系统指令预留比例。</li>
+<li><code>min_relevance</code>：最低相关性阈值。</li>
+<li><code>recency_weight</code>：新近性权重。</li>
+<li><code>relevance_weight</code>：相关性权重。</li>
+<li><code>enable_compression</code>：是否启用压缩。</li>
+</ul>
+<h2 id="8-NoteTool：结构化笔记">8. NoteTool：结构化笔记</h2>
+<p><code>NoteTool</code> 面向长时程任务，用 Markdown + YAML Front-matter 保存结构化笔记。</p>
+<p>适用场景：</p>
+<ul>
+<li>项目状态追踪。</li>
+<li>阶段性结论记录。</li>
+<li>阻塞点管理。</li>
+<li>行动项维护。</li>
+<li>研究资料整理。</li>
+</ul>
+<p>常见笔记类型包括：</p>
+<ul>
+<li><code>task_state</code></li>
+<li><code>conclusion</code></li>
+<li><code>blocker</code></li>
+<li><code>action</code></li>
+<li><code>reference</code></li>
+</ul>
+<p>相比向量记忆，NoteTool 更轻量、更适合人类阅读和版本管理。</p>
+<h2 id="9-TerminalTool：即时环境检索">9. TerminalTool：即时环境检索</h2>
+<p><code>TerminalTool</code> 让智能体通过终端操作获取上下文，例如查看目录、读取文件、搜索内容。它体现了 JIT 上下文思想：不把整个项目塞进上下文，而是让 Agent 按需探索。</p>
+<p>使用时应注意权限和安全边界，避免危险命令和敏感信息泄露。</p>
+<h2 id="10-本章重点">10. 本章重点</h2>
+<ul>
+<li>上下文工程是提示工程的扩展，关注完整输入状态管理。</li>
+<li>长上下文不等于高质量上下文，信息筛选更重要。</li>
+<li>工具、记忆、RAG、笔记和文件系统都属于上下文来源。</li>
+<li>GSSC 是可复用的上下文构建流程。</li>
+<li>长时程任务需要压缩、笔记和子代理协同。</li>
+<li>ContextBuilder、NoteTool、TerminalTool 构成 HelloAgents 的上下文工程基础。</li>
+</ul>
+<h2 id="11-小结">11. 小结</h2>
+<p>第九章把智能体开发从“写提示词”推进到“管理上下文状态”。一个强健的智能体系统，关键不只是模型能力，而是能否在每次调用前为模型提供精炼、相关、结构清晰且可持续维护的上下文。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Agent/" class="category-chain-item">Agent</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/HelloAgents/">#HelloAgents</a>
+      
+        <a href="/tags/%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/">#上下文工程</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>第09章 上下文工程</div>
+      <div>https://ahcit.github.io/2026/06/12/hello-agents/第09章 上下文工程/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>行舟</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/13/hello-agents/%E7%AC%AC10%E7%AB%A0%20%E6%99%BA%E8%83%BD%E4%BD%93%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" title="第10章 智能体通信协议">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第10章 智能体通信协议</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/12/hello-agents/%E7%AC%AC08%E7%AB%A0%20%E8%AE%B0%E5%BF%86%E4%B8%8E%E6%A3%80%E7%B4%A2/" title="第08章 记忆与检索">
+                        <span class="hidden-mobile">第08章 记忆与检索</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客人数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

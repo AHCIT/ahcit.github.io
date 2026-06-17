@@ -1,0 +1,868 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="行舟">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 本章目标 在没有协议时，每接入一个外部服务都要手写 Tool：GitHub、数据库、文件系统、天气 API 等都需要独立适配。这会带来：  重复代码多。 难以维护。 工具不可复用。 无法动态发现能力。 多智能体协作困难。  通信协议的价值是提供统一接口，让 Agent 以标准方式访问外部能力或其他 Agent。 2. 三种协议定位 MCP：Agent 与工具通信 MCP（Model Cont">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第10章 智能体通信协议">
+<meta property="og:url" content="https://ahcit.github.io/2026/06/13/hello-agents/%E7%AC%AC10%E7%AB%A0%20%E6%99%BA%E8%83%BD%E4%BD%93%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="行舟">
+<meta property="og:description" content="1. 本章目标 在没有协议时，每接入一个外部服务都要手写 Tool：GitHub、数据库、文件系统、天气 API 等都需要独立适配。这会带来：  重复代码多。 难以维护。 工具不可复用。 无法动态发现能力。 多智能体协作困难。  通信协议的价值是提供统一接口，让 Agent 以标准方式访问外部能力或其他 Agent。 2. 三种协议定位 MCP：Agent 与工具通信 MCP（Model Cont">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-13T01:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-17T01:35:46.103Z">
+<meta property="article:author" content="行舟">
+<meta property="article:tag" content="HelloAgents">
+<meta property="article:tag" content="MCP">
+<meta property="article:tag" content="A2A">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>第10章 智能体通信协议 - 行舟</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ahcit.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"yoLmWK0iNdcEMARAqNnAccsm-gzGzoHsz","app_key":"AqZlDi7H00mT33OT16ur41MG","server_url":"https://yolmwk0i.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>行舟</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="第10章 智能体通信协议"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-13 09:00" pubdate>
+          2026年6月13日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          6 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">第10章 智能体通信协议</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="1-本章目标">1. 本章目标</h2>
+<p>在没有协议时，每接入一个外部服务都要手写 Tool：GitHub、数据库、文件系统、天气 API 等都需要独立适配。这会带来：</p>
+<ul>
+<li>重复代码多。</li>
+<li>难以维护。</li>
+<li>工具不可复用。</li>
+<li>无法动态发现能力。</li>
+<li>多智能体协作困难。</li>
+</ul>
+<p>通信协议的价值是提供统一接口，让 Agent 以标准方式访问外部能力或其他 Agent。</p>
+<h2 id="2-三种协议定位">2. 三种协议定位</h2>
+<h3 id="MCP：Agent-与工具通信">MCP：Agent 与工具通信</h3>
+<p>MCP（Model Context Protocol）用于标准化智能体与外部工具、资源、提示模板之间的通信。</p>
+<p>可以把 MCP 理解为智能体工具生态的“USB-C”：不同工具只要遵循 MCP，就能被兼容客户端调用。</p>
+<p>适合场景：</p>
+<ul>
+<li>文件系统访问。</li>
+<li>数据库查询。</li>
+<li>GitHub、Slack 等 API 集成。</li>
+<li>本地或远程工具服务。</li>
+</ul>
+<h3 id="A2A：Agent-与-Agent-通信">A2A：Agent 与 Agent 通信</h3>
+<p>A2A（Agent-to-Agent Protocol）用于智能体之间的点对点协作。它关注任务委托、状态同步和工件传递。</p>
+<p>适合场景：</p>
+<ul>
+<li>研究员 Agent + 撰写员 Agent + 编辑 Agent。</li>
+<li>多角色协作完成复杂任务。</li>
+<li>去中心化 Agent 协同。</li>
+</ul>
+<h3 id="ANP：Agent-网络协议">ANP：Agent 网络协议</h3>
+<p>ANP（Agent Network Protocol）面向大规模智能体网络，重点是服务注册、发现和路由。</p>
+<p>适合场景：</p>
+<ul>
+<li>大规模 Agent 生态。</li>
+<li>动态服务发现。</li>
+<li>多 Agent 网络基础设施。</li>
+</ul>
+<h2 id="3-如何选择协议">3. 如何选择协议</h2>
+<ul>
+<li>需要访问外部工具或资源：选 <strong>MCP</strong>。</li>
+<li>需要多个 Agent 点对点协作：选 <strong>A2A</strong>。</li>
+<li>需要构建大规模 Agent 网络：考虑 <strong>ANP</strong>。</li>
+</ul>
+<p>目前 MCP 生态最成熟，实际项目中优先使用大厂或社区维护活跃的 MCP Server。</p>
+<h2 id="4-HelloAgents-协议架构">4. HelloAgents 协议架构</h2>
+<p>HelloAgents 将通信协议分为三层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">协议实现层：MCP、A2A、ANP 底层实现<br>工具封装层：MCPTool、A2ATool、ANPTool<br>智能体集成层：Agent 通过 Tool System 使用协议能力<br></code></pre></td></tr></table></figure>
+<p>这种设计保持了框架的一致性：无论底层协议如何变化，Agent 仍然通过工具接口调用。</p>
+<h2 id="5-MCP-核心概念">5. MCP 核心概念</h2>
+<p>MCP 架构包含三类角色：</p>
+<ul>
+<li><strong>Host</strong>：用户交互入口，如 Claude Desktop 或 Agent 应用。</li>
+<li><strong>Client</strong>：负责连接 MCP Server 并收发协议消息。</li>
+<li><strong>Server</strong>：提供工具、资源或提示模板。</li>
+</ul>
+<p>MCP 的核心能力有三种：</p>
+<ol>
+<li><strong>Tools</strong>：主动执行操作，如读文件、查数据库。</li>
+<li><strong>Resources</strong>：被动提供数据，如文件内容、文档资源。</li>
+<li><strong>Prompts</strong>：提供可复用提示模板。</li>
+</ol>
+<h2 id="6-MCP-与-Function-Calling-的关系">6. MCP 与 Function Calling 的关系</h2>
+<p>Function Calling 是模型能力，解决“模型如何决定调用函数、生成参数”。</p>
+<p>MCP 是工程协议，解决“工具如何被描述、发现、连接和调用”。</p>
+<p>二者不是竞争关系，而是互补关系。Function Calling 偏模型侧，MCP 偏基础设施侧。</p>
+<h2 id="7-MCPTool-自动展开">7. MCPTool 自动展开</h2>
+<p>HelloAgents 的 <code>MCPTool</code> 支持自动展开机制：</p>
+<ol>
+<li>连接 MCP Server。</li>
+<li>发现服务端提供的工具。</li>
+<li>为每个工具创建包装器。</li>
+<li>注册到 Agent 的工具系统。</li>
+<li>Agent 像调用普通工具一样调用 MCP 工具。</li>
+</ol>
+<p>例如一个文件系统 MCP Server 可展开为：</p>
+<ul>
+<li><code>fs_read_file</code></li>
+<li><code>fs_write_file</code></li>
+<li><code>fs_list_directory</code></li>
+</ul>
+<p>这样 Agent 不需要关心 MCP 的底层 JSON-RPC 调用细节。</p>
+<h2 id="8-MCP-传输方式">8. MCP 传输方式</h2>
+<p>HelloAgents 支持多种 MCP 传输方式：</p>
+<ul>
+<li><strong>Memory</strong>：内存传输，适合测试。</li>
+<li><strong>Stdio</strong>：标准输入输出，适合本地开发和社区 MCP Server。</li>
+<li><strong>HTTP</strong>：适合远程服务和生产环境。</li>
+<li><strong>SSE</strong>：适合实时流式通信。</li>
+<li><strong>StreamableHTTP</strong>：适合双向流式 HTTP 场景。</li>
+</ul>
+<p>实际使用中，<code>MCPTool</code> 更常用于 Memory 和 Stdio；HTTP/SSE 场景更适合直接使用底层 <code>MCPClient</code>。</p>
+<h2 id="9-A2A-协议重点">9. A2A 协议重点</h2>
+<p>A2A 解决的是智能体协作问题。它避免所有通信都经过中心协调器，采用点对点模式，减少单点故障和性能瓶颈。</p>
+<p>核心抽象包括：</p>
+<ul>
+<li><strong>Task</strong>：待完成的任务。可创建、协商、执行、完成或失败。</li>
+<li><strong>Artifact</strong>：任务执行产生的工件，如报告、代码、文件。</li>
+</ul>
+<p>A2A 的关键价值是让 Agent 具备任务委托、状态跟踪和协商能力。</p>
+<h2 id="10-ANP-协议重点">10. ANP 协议重点</h2>
+<p>ANP 关注大规模 Agent 网络中的服务发现。它包含：</p>
+<ul>
+<li>服务注册。</li>
+<li>服务发现。</li>
+<li>服务路由。</li>
+<li>网络管理。</li>
+</ul>
+<p>在 HelloAgents 中，ANP 更偏概念性模拟，用于帮助理解 Agent 网络基础设施。</p>
+<h2 id="11-本章重点">11. 本章重点</h2>
+<ul>
+<li>通信协议让 Agent 能标准化连接工具、资源和其他 Agent。</li>
+<li>MCP 是当前最实用、生态最成熟的工具通信协议。</li>
+<li>A2A 面向多智能体点对点协作。</li>
+<li>ANP 面向大规模 Agent 网络发现与路由。</li>
+<li>HelloAgents 将协议封装为 Tool，保持统一调用方式。</li>
+<li>MCPTool 的自动展开机制大幅降低工具接入成本。</li>
+</ul>
+<h2 id="12-小结">12. 小结</h2>
+<p>第十章把 HelloAgents 从单体智能体扩展到协议化生态。通过 MCP，Agent 可以快速接入外部工具；通过 A2A，多个 Agent 可以协作；通过 ANP，可以理解更大规模的智能体网络设计。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Agent/" class="category-chain-item">Agent</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/HelloAgents/">#HelloAgents</a>
+      
+        <a href="/tags/MCP/">#MCP</a>
+      
+        <a href="/tags/A2A/">#A2A</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>第10章 智能体通信协议</div>
+      <div>https://ahcit.github.io/2026/06/13/hello-agents/第10章 智能体通信协议/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>行舟</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2026/06/13/hello-agents/%E7%AC%AC11%E7%AB%A0%20Agentic-RL/" title="第11章 Agentic-RL">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">第11章 Agentic-RL</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/06/12/hello-agents/%E7%AC%AC09%E7%AB%A0%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%B7%A5%E7%A8%8B/" title="第09章 上下文工程">
+                        <span class="hidden-mobile">第09章 上下文工程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="waline"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#waline', function() {
+      Fluid.utils.createCssLink('https://lib.baomitu.com/waline/2.14.1/waline.min.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/waline/2.14.1/waline.min.js', function() {
+        var options = Object.assign(
+          {"serverURL":"https://blog-4ir3t1c0s-ahcit.vercel.app/","path":"window.location.pathname","meta":["nick","mail","link"],"requiredMeta":["nick"],"lang":"zh-CN","avatar":"retro","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","wordLimit":0,"pageSize":10},
+          {
+            el: '#waline',
+            path: window.location.pathname
+          }
+        )
+        Waline.init(options);
+        Fluid.utils.waitElementVisible('#waline .vcontent', () => {
+          var imgSelector = '#waline .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      <a href="https://ahcit.github.io/" target="_blank" rel="nofollow noopener"><span>书海行舟 贵在坚持</span></a>
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客人数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
